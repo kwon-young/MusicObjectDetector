@@ -32,7 +32,8 @@ install:
   - pip list
 
 script:
-  travis_wait pytest --cov=./ ./
+  pytest
+  #travis_wait pytest --cov=./ ./
 
 after_success:
   - codecov
