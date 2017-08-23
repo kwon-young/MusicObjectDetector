@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/MusicObjectDetection.iml" filepath="$PROJECT_DIR$/.idea/MusicObjectDetection.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/MusicObjectDetector.iml" filepath="$PROJECT_DIR$/.idea/MusicObjectDetector.iml" />
     </modules>
   </component>
 </project>
