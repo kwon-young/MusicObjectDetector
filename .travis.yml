@@ -26,7 +26,7 @@ install:
   - conda install Pillow;
 
   # Install additional requirements (Keras and Tensorflow CPU-Version)
-  - pip install -r ModelTrainer/requirements.txt
+  - pip install -r requirements.txt
   
   # List installed packages for debuggin purposes
   - pip list
