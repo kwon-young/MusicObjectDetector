@@ -2,6 +2,8 @@
 
 This repository is the home of a Faster R-CNN implementation for Music Symbols to implement a fast and reliable Music Symbol detector with Deep Learning.
 
+[![Build Status](https://travis-ci.org/apacha/MusicObjectDetector.svg?branch=master)](https://travis-ci.org/apacha/MusicObjectDetector)
+
 Note my previous projects that [classified entire sheets](https://github.com/apacha/MusicScoreClassifier) or [learnt to classify different music symbols](https://github.com/apacha/MusicSymbolClassifier).
 
 
