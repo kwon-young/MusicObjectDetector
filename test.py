@@ -1,0 +1,4 @@
+from omrdatasettools.downloaders.MuscimaPlusPlusDatasetDownloader import MuscimaPlusPlusDatasetDownloader
+
+downloader = MuscimaPlusPlusDatasetDownloader("data/muscima_pp_raw")
+downloader.download_and_extract_dataset()

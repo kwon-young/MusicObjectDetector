@@ -20,6 +20,8 @@ numpy == 1.12.1
 lxml == 3.7.3
 pydot == 1.2.3
 tqdm
+opencv-python
+omrdatasettools==0.6
 
 # Optional for reporting
 telegram_send == 0.10
