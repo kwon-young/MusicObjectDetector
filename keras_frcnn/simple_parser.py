@@ -19,6 +19,7 @@ def get_data(input_path):
         for line in f:
             line_split = line.strip().split(',')
             (filename, x1, y1, x2, y2, class_name) = line_split
+            x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
 
             if class_name not in classes_count:
                 classes_count[class_name] = 1
@@ -47,7 +48,12 @@ def get_data(input_path):
                     all_imgs[filename]['imageset'] = 'test'
 
             all_imgs[filename]['bboxes'].append(
-                {'class': class_name, 'x1': int(x1), 'x2': int(x2), 'y1': int(y1), 'y2': int(y2)})
+                {'class': class_name, 'x1': x1, 'x2': x2, 'y1': y1, 'y2': y2})
+
+            if visualise:
+                cv2.rectangle(img, (x1, y1), (x2, y2), (0, 0, 255))
+                cv2.imshow('img', img)
+                cv2.waitKey(0)
 
         all_data = []
         for key in all_imgs:
@@ -62,3 +68,6 @@ def get_data(input_path):
                 class_mapping[key_to_switch] = val_to_switch
 
         return all_data, classes_count, class_mapping
+
+if __name__ == "__main__":
+    get_data("annotationsample.txt")
