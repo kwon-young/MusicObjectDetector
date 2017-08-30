@@ -7,22 +7,25 @@ import numpy as np
 from optparse import OptionParser
 import pickle
 
+import shutil
 from keras import backend as K
 from keras.optimizers import Adam, SGD, RMSprop
 from keras.layers import Input
 from keras.models import Model
+from omrdatasettools.downloaders.CvcMuscimaDatasetDownloader import CvcMuscimaDatasetDownloader, CvcMuscimaDataset
+from omrdatasettools.downloaders.MuscimaPlusPlusDatasetDownloader import MuscimaPlusPlusDatasetDownloader
+
 from keras_frcnn import config, data_generators
 from keras_frcnn import losses as losses
 import keras_frcnn.roi_helpers as roi_helpers
 from keras.utils import generic_utils
+from keras_frcnn.muscima_pp_parser import get_data
 
-sys.setrecursionlimit(40000)
+import os
 
 parser = OptionParser()
 
-parser.add_option("-p", "--path", dest="train_path", help="Path to training data.")
-parser.add_option("-o", "--parser", dest="parser", help="Parser to use. One of simple or pascal_voc",
-                  default="pascal_voc")
+parser.add_option("-p", "--path", dest="train_path", help="Path to training data.", default="data")
 parser.add_option("-n", "--num_rois", dest="num_rois", help="Number of RoIs to process at once.", default=32)
 parser.add_option("--network", dest="network", help="Base network to use. Supports vgg or resnet50.",
                   default='resnet50')
@@ -44,15 +47,22 @@ parser.add_option("--input_weight_path", dest="input_weight_path",
 
 (options, args) = parser.parse_args()
 
-if not options.train_path:  # if filename is not given
+dataset_directory = options.train_path
+muscima_pp_raw_dataset_directory = os.path.join(dataset_directory, "muscima_pp_raw")
+muscima_image_directory = os.path.join(dataset_directory, "cvcmuscima_staff_removal")
+
+if not dataset_directory:  # if filename is not given
     parser.error('Error: path to training data must be specified. Pass --path to command line')
 
-if options.parser == 'pascal_voc':
-    from keras_frcnn.pascal_voc_parser import get_data
-elif options.parser == 'simple':
-    from keras_frcnn.simple_parser import get_data
-else:
-    raise ValueError("Command line option parser must be one of 'pascal_voc' or 'simple'")
+# print("Deleting dataset directory {0}".format(dataset_directory))
+# if os.path.exists(dataset_directory):
+#     shutil.rmtree(dataset_directory)
+#
+# downloader = MuscimaPlusPlusDatasetDownloader(muscima_pp_raw_dataset_directory)
+# downloader.download_and_extract_dataset()
+
+# downloader = CvcMuscimaDatasetDownloader("data/cvcmuscima_staff_removal", CvcMuscimaDataset.StaffRemoval)
+# downloader.download_and_extract_dataset()
 
 # pass the settings from the command line, and persist them in the config object
 C = config.Config()
@@ -60,7 +70,6 @@ C = config.Config()
 C.use_horizontal_flips = bool(options.horizontal_flips)
 C.use_vertical_flips = bool(options.vertical_flips)
 C.rot_90 = bool(options.rot_90)
-
 C.model_path = options.output_weight_path
 C.num_rois = int(options.num_rois)
 
@@ -82,7 +91,7 @@ else:
     # set the path to weights based on backend and model
     C.base_net_weights = nn.get_weight_path()
 
-all_imgs, classes_count, class_mapping = get_data(options.train_path)
+all_imgs, classes_count, class_mapping = get_data(muscima_image_directory, muscima_pp_raw_dataset_directory)
 
 if 'bg' not in classes_count:
     classes_count['bg'] = 0
