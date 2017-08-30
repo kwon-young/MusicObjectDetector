@@ -21,7 +21,7 @@ lxml == 3.7.3
 pydot == 1.2.3
 tqdm
 opencv-python
-omrdatasettools==0.6
+omrdatasettools==0.7
 
 # Optional for reporting
 telegram_send == 0.10
