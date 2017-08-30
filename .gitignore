@@ -216,3 +216,4 @@ HOMUS.zip
 **/tests/temp/
 output.txt
 *.zip
+/config.pickle
