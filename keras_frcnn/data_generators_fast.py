@@ -1,15 +1,12 @@
-from __future__ import absolute_import
-import numpy as np
-import cv2
-import random, time
-import copy
+import random
+import threading
 
+import cv2
+import numpy as np
+
+from keras_frcnn.py_faster_rcnn.utils.bbox import bbox_overlaps
 from . import data_augment
 
-import threading
-import itertools
-
-from py_faster_rcnn.utils.bbox import bbox_overlap
 
 def union(au, bu, area_intersection):
     area_a = (au[2] - au[0]) * (au[3] - au[1])
