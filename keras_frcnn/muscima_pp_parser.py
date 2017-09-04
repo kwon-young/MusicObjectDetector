@@ -72,6 +72,16 @@ def get_data(muscima_image_directory, muscima_pp_raw_data_directory: str, visual
     return all_data, classes_count, class_mapping
 
 
+def bounding_box_in(image_crop_bounding_box: Tuple[int, int, int, int],
+                    crop_object_bounding_box: Tuple[int, int, int, int]) -> bool:
+    image_left, image_top, image_right, image_bottom = image_crop_bounding_box
+    object_left, object_top, object_right, object_bottom = crop_object_bounding_box
+    if object_left >= image_left and object_right <= image_right \
+            and object_top >= image_top and object_bottom <= image_bottom:
+        return True
+    return False
+
+
 def cut_images(muscima_image_directory: str, staff_vertical_positions_file: str, output_path: str,
                muscima_pp_raw_data_directory: str, ):
     image_paths = [y for x in os.walk(muscima_image_directory) for y in glob(os.path.join(x[0], '*.png'))]
@@ -88,9 +98,8 @@ def cut_images(muscima_image_directory: str, staff_vertical_positions_file: str,
         result = re.match(r"CVC-MUSCIMA_W-(?P<writer>\d+)_N-(?P<page>\d+)_D-ideal", doc)
         writer = result.group("writer")
         page = result.group("page")
-        crop_object_annotations.append(('w-'+writer, 'p'+page.zfill(3), crop_objects))
-        #break
-
+        crop_object_annotations.append(('w-' + writer, 'p' + page.zfill(3), crop_objects))
+        # break
 
     with open(staff_vertical_positions_file) as f:
         content = f.readlines()
@@ -112,7 +121,7 @@ def cut_images(muscima_image_directory: str, staff_vertical_positions_file: str,
         if coordinates is not None:
             images_to_cut.append((image_path, writer, page, coordinates))
 
-    for image_to_cut in images_to_cut:
+    for image_to_cut in tqdm(images_to_cut, desc="Cutting images"):
         path, writer, page, coordinates = image_to_cut
         staff_line_pairs = coordinates.split(',')
         image = Image.open(path, "r")
@@ -126,12 +135,18 @@ def cut_images(muscima_image_directory: str, staff_vertical_positions_file: str,
         i = 1
         for pair in staff_line_pairs:
             y_top, y_bottom = pair.split(':')
-
             previous_width = 0
             for crop_width in [500, 1000, 1500, 2000, 2500, 3000, 3500]:
+                crop_objects_of_cropped_image = []
                 if crop_width > width:
                     crop_width = width
-                cropped_image = image.crop((previous_width, int(y_top), crop_width, int(y_bottom)))
+                image_crop_bounding_box = (previous_width, int(y_top), crop_width, int(y_bottom))
+
+                for crop_object in crop_objects_of_image:
+                    if bounding_box_in(image_crop_bounding_box, crop_object.bounding_box):
+                        crop_objects_of_cropped_image.append(crop_object)
+
+                cropped_image = image.crop(image_crop_bounding_box)
                 output_file = os.path.join(output_path, "{0}_{1}_{2}.png".format(writer, page, i))
                 cropped_image.save(output_file)
                 previous_width = crop_width
