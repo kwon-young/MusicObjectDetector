@@ -18,6 +18,15 @@ $env:PYTHONPATH = $pathToSourceRoot
 #pytest
 
 
+#######################################
+# Build tools for data_generators_fast
+#######################################
+cd keras_frcnn
+cd py_faster_rcnn
+python setup.py build_ext --inplace
+cd ..
+cd ..
+
 ################################################
 # Upcoming Trainings 
 ################################################

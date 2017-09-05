@@ -29,7 +29,18 @@ via pip (note that you can only have one of them) and the required Nvidia driver
 
 ## Training the model
 
-TBD
+The easiest way to start the training is to run `TrainModel.ps` from the PowerShell.
+
+### Manually start the training
+For manually starting the training, make sure to first compile the tools 
+
+    cd keras_frcnn/py_faster_rcnn
+    python setup.py build_ext --inplace
+    
+then run TrainModel like this
+
+    MusicObjectDetector> python TrainModel.py --network resnet50 --output_weight_path "resnet50.hdf5"
+    
 
 # License
 
