@@ -15,7 +15,7 @@ from omrdatasettools.image_generators.MuscimaPlusPlusImageGenerator import Musci
 from tqdm import tqdm
 
 
-def get_data(muscima_image_directory, muscima_pp_raw_data_directory: str, visualize=False) -> Tuple[list, dict, dict]:
+def get_data(muscima_image_directory, muscima_pp_raw_data_directory: str, visualize=False) -> Tuple[list[dict], dict, dict]:
     all_imgs = {}
     classes_count = {}
     class_mapping = {}
@@ -75,10 +75,11 @@ def get_data(muscima_image_directory, muscima_pp_raw_data_directory: str, visual
 
     return all_data, classes_count, class_mapping
 
+
 if __name__ == "__main__":
     all_data, classes_count, class_mapping = get_data(
             # "C:\\Users\\Alex\\Repositories\\CVC-MUSCIMA\\CVCMUSCIMA_WI\\CVCMUSCIMA_WI\\PNG_GT_Gray\\",
-            "..data/cvcmuscima_staff_removal",
+            "../data/cvcmuscima_staff_removal",
             "../data/muscima_pp_raw", False)
 
     number_of_bounding_boxes = sum(classes_count.values())

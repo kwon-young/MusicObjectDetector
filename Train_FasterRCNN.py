@@ -12,6 +12,7 @@ from keras import backend as K
 from keras.optimizers import Adam, SGD, RMSprop
 from keras.layers import Input
 from keras.models import Model
+from omrdatasettools.converters.ImageInverter import ImageInverter
 from omrdatasettools.downloaders.CvcMuscimaDatasetDownloader import CvcMuscimaDatasetDownloader, CvcMuscimaDataset
 from omrdatasettools.downloaders.MuscimaPlusPlusDatasetDownloader import MuscimaPlusPlusDatasetDownloader
 
@@ -19,7 +20,9 @@ from keras_frcnn import config, data_generators
 from keras_frcnn import losses as losses
 import keras_frcnn.roi_helpers as roi_helpers
 from keras.utils import generic_utils
-from keras_frcnn.muscima_pp_parser import get_data
+
+from keras_frcnn.muscima_image_cutter import delete_unused_images, cut_images
+from keras_frcnn.muscima_pp_cropped_image_parser import get_data
 
 import os
 
@@ -50,6 +53,7 @@ parser.add_option("--input_weight_path", dest="input_weight_path",
 dataset_directory = options.train_path
 muscima_pp_raw_dataset_directory = os.path.join(dataset_directory, "muscima_pp_raw")
 muscima_image_directory = os.path.join(dataset_directory, "cvcmuscima_staff_removal")
+muscima_cropped_directory = os.path.join(dataset_directory, "muscima_pp_cropped_images")
 
 if not dataset_directory:  # if filename is not given
     parser.error('Error: path to training data must be specified. Pass --path to command line')
@@ -60,9 +64,20 @@ if not dataset_directory:  # if filename is not given
 #
 # downloader = MuscimaPlusPlusDatasetDownloader(muscima_pp_raw_dataset_directory)
 # downloader.download_and_extract_dataset()
-
-# downloader = CvcMuscimaDatasetDownloader("data/cvcmuscima_staff_removal", CvcMuscimaDataset.StaffRemoval)
+#
+# downloader = CvcMuscimaDatasetDownloader(muscima_image_directory, CvcMuscimaDataset.StaffRemoval)
 # downloader.download_and_extract_dataset()
+#
+# delete_unused_images(muscima_image_directory)
+#
+# inverter = ImageInverter()
+# # We would like to work with black-on-white images instead of white-on-black images
+# inverter.invert_images(muscima_image_directory, "*.png")
+#
+# shutil.copy("Staff-Vertical-Positions.txt", dataset_directory)
+#
+# cut_images(muscima_image_directory, os.path.join(dataset_directory,"Staff-Vertical-Positions.txt"),
+#            muscima_cropped_directory, muscima_pp_raw_dataset_directory)
 
 # pass the settings from the command line, and persist them in the config object
 C = config.Config()
@@ -91,7 +106,7 @@ else:
     # set the path to weights based on backend and model
     C.base_net_weights = nn.get_weight_path()
 
-all_imgs, classes_count, class_mapping = get_data(muscima_image_directory, muscima_pp_raw_dataset_directory)
+all_images, classes_count, class_mapping = get_data(muscima_cropped_directory)
 
 if 'bg' not in classes_count:
     classes_count['bg'] = 0
@@ -112,12 +127,12 @@ with open(config_output_filename, 'wb') as config_f:
     print('Config has been written to {}, and can be loaded when testing to ensure correct results'.format(
         config_output_filename))
 
-random.shuffle(all_imgs)
+random.shuffle(all_images)
 
-num_imgs = len(all_imgs)
+num_imgs = len(all_images)
 
-train_imgs = [s for s in all_imgs if s['imageset'] == 'trainval']
-val_imgs = [s for s in all_imgs if s['imageset'] == 'test']
+train_imgs = [s for s in all_images if s['imageset'] == 'trainval']
+val_imgs = [s for s in all_images if s['imageset'] == 'test']
 
 print('Num train samples {}'.format(len(train_imgs)))
 print('Num val samples {}'.format(len(val_imgs)))
