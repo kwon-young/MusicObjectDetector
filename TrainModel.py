@@ -16,7 +16,7 @@ from omrdatasettools.converters.ImageInverter import ImageInverter
 from omrdatasettools.downloaders.CvcMuscimaDatasetDownloader import CvcMuscimaDatasetDownloader, CvcMuscimaDataset
 from omrdatasettools.downloaders.MuscimaPlusPlusDatasetDownloader import MuscimaPlusPlusDatasetDownloader
 
-from keras_frcnn import config, data_generators
+from keras_frcnn import config, data_generators_fast, data_generators
 from keras_frcnn import losses as losses
 import keras_frcnn.roi_helpers as roi_helpers
 from keras.utils import generic_utils
@@ -35,6 +35,9 @@ parser.add_option("--network", dest="network", help="Base network to use. Suppor
 parser.add_option("--hf", dest="horizontal_flips", help="Augment with horizontal flips in training. (Default=false).",
                   action="store_true", default=False)
 parser.add_option("--vf", dest="vertical_flips", help="Augment with vertical flips in training. (Default=false).",
+                  action="store_true", default=False)
+parser.add_option("--recreate_dataset_directory", dest="delete_and_recreate_dataset_directory",
+                  help="Deletes and recreates the dataset directory",
                   action="store_true", default=False)
 parser.add_option("--rot", "--rot_90", dest="rot_90",
                   help="Augment with 90 degree rotations in training. (Default=false).",
@@ -58,26 +61,27 @@ muscima_cropped_directory = os.path.join(dataset_directory, "muscima_pp_cropped_
 if not dataset_directory:  # if filename is not given
     parser.error('Error: path to training data must be specified. Pass --path to command line')
 
-# print("Deleting dataset directory {0}".format(dataset_directory))
-# if os.path.exists(dataset_directory):
-#     shutil.rmtree(dataset_directory)
-#
-# downloader = MuscimaPlusPlusDatasetDownloader(muscima_pp_raw_dataset_directory)
-# downloader.download_and_extract_dataset()
-#
-# downloader = CvcMuscimaDatasetDownloader(muscima_image_directory, CvcMuscimaDataset.StaffRemoval)
-# downloader.download_and_extract_dataset()
-#
-# delete_unused_images(muscima_image_directory)
-#
-# inverter = ImageInverter()
-# # We would like to work with black-on-white images instead of white-on-black images
-# inverter.invert_images(muscima_image_directory, "*.png")
-#
-# shutil.copy("Staff-Vertical-Positions.txt", dataset_directory)
-#
-# cut_images(muscima_image_directory, os.path.join(dataset_directory,"Staff-Vertical-Positions.txt"),
-#            muscima_cropped_directory, muscima_pp_raw_dataset_directory)
+if options.delete_and_recreate_dataset_directory:
+    print("Deleting dataset directory {0}".format(dataset_directory))
+    if os.path.exists(dataset_directory):
+        shutil.rmtree(dataset_directory)
+
+    downloader = MuscimaPlusPlusDatasetDownloader(muscima_pp_raw_dataset_directory)
+    downloader.download_and_extract_dataset()
+
+    downloader = CvcMuscimaDatasetDownloader(muscima_image_directory, CvcMuscimaDataset.StaffRemoval)
+    downloader.download_and_extract_dataset()
+
+    delete_unused_images(muscima_image_directory)
+
+    inverter = ImageInverter()
+    # We would like to work with black-on-white images instead of white-on-black images
+    inverter.invert_images(muscima_image_directory, "*.png")
+
+    shutil.copy("Staff-Vertical-Positions.txt", dataset_directory)
+
+    cut_images(muscima_image_directory, os.path.join(dataset_directory,"Staff-Vertical-Positions.txt"),
+               muscima_cropped_directory, muscima_pp_raw_dataset_directory)
 
 # pass the settings from the command line, and persist them in the config object
 C = config.Config()
@@ -87,6 +91,8 @@ C.use_vertical_flips = bool(options.vertical_flips)
 C.rot_90 = bool(options.rot_90)
 C.model_path = options.output_weight_path
 C.num_rois = int(options.num_rois)
+
+print("Using {0} network for training".format(options.network))
 
 if options.network == 'vgg':
     C.network = 'vgg'
@@ -137,10 +143,11 @@ val_imgs = [s for s in all_images if s['imageset'] == 'test']
 print('Num train samples {}'.format(len(train_imgs)))
 print('Num val samples {}'.format(len(val_imgs)))
 
-data_gen_train = data_generators.get_anchor_gt(train_imgs, classes_count, C, nn.get_img_output_length,
-                                               K.image_dim_ordering(), mode='train')
-data_gen_val = data_generators.get_anchor_gt(val_imgs, classes_count, C, nn.get_img_output_length,
-                                             K.image_dim_ordering(), mode='val')
+# data_gen_train = data_generators.get_anchor_gt(train_imgs, classes_count, C, nn.get_img_output_length, mode='train')
+# data_gen_val = data_generators.get_anchor_gt(val_imgs, classes_count, C, nn.get_img_output_length, mode='val')
+
+data_gen_train = data_generators_fast.get_anchor_gt(train_imgs, C, nn.get_img_output_length, mode='train')
+data_gen_val = data_generators_fast.get_anchor_gt(val_imgs, C, nn.get_img_output_length, mode='val')
 
 input_shape_img = (None, None, 3)
 
@@ -188,6 +195,8 @@ rpn_accuracy_for_epoch = []
 start_time = time.time()
 
 best_loss = np.Inf
+
+model_classifier.summary()
 
 class_mapping_inv = {v: k for k, v in class_mapping.items()}
 print('Starting training')

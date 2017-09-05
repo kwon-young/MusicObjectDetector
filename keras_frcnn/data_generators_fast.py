@@ -1,9 +1,13 @@
 import random
 import threading
+from typing import List
 
 import cv2
+import numpy
 import numpy as np
+from tqdm import tqdm
 
+from keras_frcnn.config import Config
 from keras_frcnn.py_faster_rcnn.utils.bbox import bbox_overlaps
 from . import data_augment
 
@@ -428,9 +432,14 @@ def threadsafe_generator(f):
     return g
 
 
-def get_anchor_gt(anchors, all_img_data, C, img_length_calc_function, backend, mode='train'):
-    # The following line is not useful with Python 3.5, it is kept for the legacy
-    # all_img_data = sorted(all_img_data)
+def get_anchor_gt(all_img_data: List, C: Config, img_length_calc_function, mode: str = 'train'):
+    image_anchors = {}
+    for img_data in tqdm(all_img_data, desc="Pre-computing anchors for resized images"):
+        (width, height) = (img_data['width'], img_data['height'])
+        (resized_width, resized_height) = get_new_img_size(width, height, C.im_size)
+        anchors = get_anchors(C, width, height, resized_width, resized_height, img_length_calc_function)
+        image_anchors[img_data['filepath']] = anchors
+
     while True:
         if mode == 'train':
             random.shuffle(all_img_data)
@@ -457,11 +466,12 @@ def get_anchor_gt(anchors, all_img_data, C, img_length_calc_function, backend, m
 
                 try:
                     # start_time = time.time()
+                    anchors = image_anchors[img_data['filepath']]
                     y_rpn_cls, y_rpn_regr = calc_rpn2(C, img_data_aug, width, height, resized_width, resized_height,
                                                       anchors)
-                # y_rpn_cls, y_rpn_regr = calc_rpn(C, img_data_aug, width, height, resized_width, resized_height, img_length_calc_function)
-                # end_time = time.time() - start_time
-                # print  end_time
+                    # y_rpn_cls, y_rpn_regr = calc_rpn(C, img_data_aug, width, height, resized_width, resized_height, img_length_calc_function)
+                    # end_time = time.time() - start_time
+                    # print  end_time
                 except:
                     continue
 
@@ -479,10 +489,9 @@ def get_anchor_gt(anchors, all_img_data, C, img_length_calc_function, backend, m
 
                 y_rpn_regr[:, y_rpn_regr.shape[1] // 2:, :, :] *= C.std_scaling
 
-                if backend == 'tf':
-                    x_img = np.transpose(x_img, (0, 2, 3, 1))
-                    y_rpn_cls = np.transpose(y_rpn_cls, (0, 2, 3, 1))
-                    y_rpn_regr = np.transpose(y_rpn_regr, (0, 2, 3, 1))
+                x_img = np.transpose(x_img, (0, 2, 3, 1))
+                y_rpn_cls = np.transpose(y_rpn_cls, (0, 2, 3, 1))
+                y_rpn_regr = np.transpose(y_rpn_regr, (0, 2, 3, 1))
 
                 yield np.copy(x_img), [np.copy(y_rpn_cls), np.copy(y_rpn_regr)], img_data_aug
 
