@@ -1,11 +1,12 @@
 import os
 import re
 from glob import glob
-from typing import Tuple
+from typing import Tuple, List
 
 import cv2
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageDraw
+from muscima.cropobject import CropObject
 from omrdatasettools.converters.ImageInverter import ImageInverter
 from omrdatasettools.image_generators.MuscimaPlusPlusImageGenerator import MuscimaPlusPlusImageGenerator
 from tqdm import tqdm
@@ -72,16 +73,6 @@ def get_data(muscima_image_directory, muscima_pp_raw_data_directory: str, visual
     return all_data, classes_count, class_mapping
 
 
-def bounding_box_in(image_crop_bounding_box: Tuple[int, int, int, int],
-                    crop_object_bounding_box: Tuple[int, int, int, int]) -> bool:
-    image_left, image_top, image_right, image_bottom = image_crop_bounding_box
-    object_left, object_top, object_right, object_bottom = crop_object_bounding_box
-    if object_left >= image_left and object_right <= image_right \
-            and object_top >= image_top and object_bottom <= image_bottom:
-        return True
-    return False
-
-
 def cut_images(muscima_image_directory: str, staff_vertical_positions_file: str, output_path: str,
                muscima_pp_raw_data_directory: str, ):
     image_paths = [y for x in os.walk(muscima_image_directory) for y in glob(os.path.join(x[0], '*.png'))]
@@ -90,7 +81,7 @@ def cut_images(muscima_image_directory: str, staff_vertical_positions_file: str,
     image_generator = MuscimaPlusPlusImageGenerator()
     all_xml_files = image_generator.get_all_xml_file_paths(muscima_pp_raw_data_directory)
 
-    crop_object_annotations = []
+    crop_object_annotations: List[Tuple[str, str, List[CropObject]]] = []
 
     for xml_file in tqdm(all_xml_files, desc='Parsing annotation files'):
         crop_objects = image_generator.load_crop_objects_from_xml_file(xml_file)
@@ -99,14 +90,13 @@ def cut_images(muscima_image_directory: str, staff_vertical_positions_file: str,
         writer = result.group("writer")
         page = result.group("page")
         crop_object_annotations.append(('w-' + writer, 'p' + page.zfill(3), crop_objects))
-        # break
 
     with open(staff_vertical_positions_file) as f:
         content = f.readlines()
     # you may also want to remove whitespace characters like `\n` at the end of each line
     annotations = [x.strip().split(';') for x in content]
 
-    images_to_cut = []
+    images_to_cut: List[Tuple[str, str, str, str]] = []
 
     for image_path in image_paths:
         result = re.match(r".*(?P<writer>w-\d+).*(?P<page>p\d+).png", image_path)
@@ -126,7 +116,7 @@ def cut_images(muscima_image_directory: str, staff_vertical_positions_file: str,
         staff_line_pairs = coordinates.split(',')
         image = Image.open(path, "r")
         width = image.width
-        crop_objects_of_image = None
+        crop_objects_of_image: List[CropObject] = None
         for crop_object_annotation in crop_object_annotations:
             if writer == crop_object_annotation[0] and page == crop_object_annotation[1]:
                 crop_objects_of_image = crop_object_annotation[2]
@@ -134,25 +124,48 @@ def cut_images(muscima_image_directory: str, staff_vertical_positions_file: str,
 
         i = 1
         for pair in staff_line_pairs:
-            y_top, y_bottom = pair.split(':')
+            y_top, y_bottom = map(int, pair.split(':'))
             previous_width = 0
-            for crop_width in [500, 1000, 1500, 2000, 2500, 3000, 3500]:
-                crop_objects_of_cropped_image = []
+            overlap = 100
+            for crop_width in range(500, 3501, 500):
+                objects_of_cropped_image: List[Tuple[str, Tuple[int, int, int, int]]] = []
                 if crop_width > width:
                     crop_width = width
-                image_crop_bounding_box = (previous_width, int(y_top), crop_width, int(y_bottom))
+                image_crop_bounding_box = (previous_width, y_top, crop_width, y_bottom)
 
                 for crop_object in crop_objects_of_image:
                     if bounding_box_in(image_crop_bounding_box, crop_object.bounding_box):
-                        crop_objects_of_cropped_image.append(crop_object)
+                        top, left, bottom, right = crop_object.bounding_box
+                        translated_bounding_box = (
+                            top - y_top, left - previous_width, bottom - y_top, right - previous_width)
+                        objects_of_cropped_image.append((crop_object.clsname, translated_bounding_box))
 
-                cropped_image = image.crop(image_crop_bounding_box)
+                cropped_image = image.crop(image_crop_bounding_box).convert('RGB')
+
+                draw_bounding_boxes(cropped_image, objects_of_cropped_image)
+
                 output_file = os.path.join(output_path, "{0}_{1}_{2}.png".format(writer, page, i))
                 cropped_image.save(output_file)
-                previous_width = crop_width
+                previous_width = crop_width - overlap
                 i += 1
 
-    pass
+
+def bounding_box_in(image_crop_bounding_box: Tuple[int, int, int, int],
+                    crop_object_bounding_box: Tuple[int, int, int, int]) -> bool:
+    image_left, image_top, image_right, image_bottom = image_crop_bounding_box
+    object_top, object_left, object_bottom, object_right = crop_object_bounding_box
+    if object_left >= image_left and object_right <= image_right \
+            and object_top >= image_top and object_bottom <= image_bottom:
+        return True
+    return False
+
+
+def draw_bounding_boxes(cropped_image, objects_of_cropped_image):
+    draw = ImageDraw.Draw(cropped_image)
+    red = (255, 0, 0)
+    for object_in_image in objects_of_cropped_image:
+        top, left, bottom, right = object_in_image[1]
+        draw.rectangle((left, top, right, bottom), fill=None, outline=red)
 
 
 if __name__ == "__main__":
