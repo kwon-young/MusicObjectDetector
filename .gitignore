@@ -217,3 +217,4 @@ HOMUS.zip
 output.txt
 *.zip
 /config.pickle
+*.hdf5
