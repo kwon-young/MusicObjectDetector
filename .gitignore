@@ -218,3 +218,5 @@ output.txt
 *.zip
 /config.pickle
 *.hdf5
+testdata
+image_results
