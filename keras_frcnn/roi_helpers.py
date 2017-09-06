@@ -72,7 +72,7 @@ def calc_iou(R, img_data, C, class_mapping):
         class_num = class_mapping[cls_name]
         class_label = len(class_mapping) * [0]
         class_label[class_num] = 1
-        y_class_num.append(copy.deepcopy(class_label))
+        y_class_num.append(class_label)
         coords = [0] * 4 * (len(class_mapping) - 1)
         labels = [0] * 4 * (len(class_mapping) - 1)
         if cls_name != 'bg':
@@ -80,11 +80,11 @@ def calc_iou(R, img_data, C, class_mapping):
             sx, sy, sw, sh = C.classifier_regr_std
             coords[label_pos:4 + label_pos] = [sx * tx, sy * ty, sw * tw, sh * th]
             labels[label_pos:4 + label_pos] = [1, 1, 1, 1]
-            y_class_regr_coords.append(copy.deepcopy(coords))
-            y_class_regr_label.append(copy.deepcopy(labels))
+            y_class_regr_coords.append(coords)
+            y_class_regr_label.append(labels)
         else:
-            y_class_regr_coords.append(copy.deepcopy(coords))
-            y_class_regr_label.append(copy.deepcopy(labels))
+            y_class_regr_coords.append(coords)
+            y_class_regr_label.append(labels)
 
     if len(x_roi) == 0:
         return None, None, None, None
