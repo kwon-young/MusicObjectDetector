@@ -50,6 +50,18 @@ Start-Transcript -path "$($pathToTranscript)$($base_name)_$($configuration_name)
 python "$($pathToTranscript)TrainModel.py" --configuration_name $configuration_name --output_weight_path "$($base_name)_$($configuration_name).hdf5" --config_filename "$($base_name)_$($configuration_name).pickle" --num_epochs 5
 Stop-Transcript
 
+$configuration_name = "small_images"
+$base_name = "2017-09-06"
+Start-Transcript -path "$($pathToTranscript)$($base_name)_$($configuration_name).txt" -append
+python "$($pathToTranscript)TrainModel.py" --configuration_name $configuration_name --output_weight_path "$($base_name)_$($configuration_name).hdf5" --config_filename "$($base_name)_$($configuration_name).pickle" --num_epochs 5
+Stop-Transcript
+
+$configuration_name = "many_anchor_box_scales_many_rois"
+$base_name = "2017-09-06"
+Start-Transcript -path "$($pathToTranscript)$($base_name)_$($configuration_name).txt" -append
+python "$($pathToTranscript)TrainModel.py" --configuration_name $configuration_name --output_weight_path "$($base_name)_$($configuration_name).hdf5" --config_filename "$($base_name)_$($configuration_name).pickle" --num_epochs 5
+Stop-Transcript
+
 
 #######################################################
 # Below are configurations that already were 
