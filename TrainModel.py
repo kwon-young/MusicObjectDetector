@@ -1,32 +1,30 @@
-from __future__ import division
-import random
-import pprint
-import sys
-import time
-import numpy as np
-from optparse import OptionParser
+import os
 import pickle
-
+import pprint
+import random
 import shutil
+import time
+from optparse import OptionParser
+
+import numpy as np
 from keras import backend as K
-from keras.optimizers import Adam, SGD, RMSprop
 from keras.layers import Input
 from keras.models import Model
+from keras.optimizers import Adadelta
+from keras.utils import generic_utils
 from omrdatasettools.converters.ImageInverter import ImageInverter
 from omrdatasettools.downloaders.CvcMuscimaDatasetDownloader import CvcMuscimaDatasetDownloader, CvcMuscimaDataset
 from omrdatasettools.downloaders.MuscimaPlusPlusDatasetDownloader import MuscimaPlusPlusDatasetDownloader
 
-from keras_frcnn import config, data_generators_fast, data_generators, faster_rcnn_losses
 import keras_frcnn.roi_helpers as roi_helpers
-from keras.utils import generic_utils
-
+from keras_frcnn import data_generators_fast, faster_rcnn_losses
+from keras_frcnn.Configurations.ConfigurationFactory import ConfigurationFactory
 from keras_frcnn.muscima_image_cutter import delete_unused_images, cut_images
 from keras_frcnn.muscima_pp_cropped_image_parser import get_data
 
-import os
 
-
-def train_model(dataset_directory: str, delete_and_recreate_dataset_directory:bool, options):
+def train_model(dataset_directory: str, delete_and_recreate_dataset_directory: bool, options, configuration_name: str,
+                output_weight_path: str, configuration_filename: str, epochs: int):
     muscima_pp_raw_dataset_directory = os.path.join(dataset_directory, "muscima_pp_raw")
     muscima_image_directory = os.path.join(dataset_directory, "cvcmuscima_staff_removal")
     muscima_cropped_directory = os.path.join(dataset_directory, "muscima_pp_cropped_images")
@@ -57,34 +55,16 @@ def train_model(dataset_directory: str, delete_and_recreate_dataset_directory:bo
                    muscima_cropped_directory, muscima_pp_raw_dataset_directory)
 
     # pass the settings from the command line, and persist them in the config object
-    C = config.Config()
+    C = ConfigurationFactory.get_configuration_by_name(configuration_name)
+    C.model_path = output_weight_path
 
-    C.use_horizontal_flips = bool(options.horizontal_flips)
-    C.use_vertical_flips = bool(options.vertical_flips)
-    C.rot_90 = bool(options.rot_90)
-    C.model_path = options.output_weight_path
-    C.num_rois = int(options.num_rois)
-    network = options.network
-
-    print("Using {0} network for training".format(network))
-
-    if network == 'vgg':
-        C.network = 'vgg'
+    if C.network == 'vgg':
         from keras_frcnn import vgg as nn
-    elif network == 'resnet50':
+    elif C.network == 'resnet50':
         from keras_frcnn import resnet as nn
-
-        C.network = 'resnet50'
     else:
         print('Not a valid model')
         raise ValueError
-
-    # check if weight path was passed via command line
-    if options.input_weight_path:
-        C.base_net_weights = options.input_weight_path
-    else:
-        # set the path to weights based on backend and model
-        C.base_net_weights = nn.get_weight_path()
 
     all_images, classes_count, class_mapping = get_data(muscima_cropped_directory)
 
@@ -94,22 +74,22 @@ def train_model(dataset_directory: str, delete_and_recreate_dataset_directory:bo
 
     C.class_mapping = class_mapping
 
-    inv_map = {v: k for k, v in class_mapping.items()}
+    # inv_map = {v: k for k, v in class_mapping.items()}
 
     print('Training images per class:')
     pprint.pprint(classes_count)
     print('Num classes (including bg) = {}'.format(len(classes_count)))
 
-    config_output_filename = options.config_filename
+    config_output_filename = configuration_filename
 
     with open(config_output_filename, 'wb') as config_f:
         pickle.dump(C, config_f)
         print('Config has been written to {}, and can be loaded when testing to ensure correct results'.format(
-                config_output_filename))
+            config_output_filename))
 
     random.shuffle(all_images)
 
-    num_imgs = len(all_images)
+    # num_imgs = len(all_images)
 
     train_imgs = [s for s in all_images if s['imageset'] == 'trainval']
     val_imgs = [s for s in all_images if s['imageset'] == 'test']
@@ -143,16 +123,8 @@ def train_model(dataset_directory: str, delete_and_recreate_dataset_directory:bo
     # this is a model that holds both the RPN and the classifier, used to load/save weights for the models
     model_all = Model([img_input, roi_input], rpn[:2] + classifier)
 
-    try:
-        print('loading weights from {}'.format(C.base_net_weights))
-        model_rpn.load_weights(C.base_net_weights, by_name=True)
-        model_classifier.load_weights(C.base_net_weights, by_name=True)
-    except:
-        print('Could not load pretrained model weights. Weights can be found in the keras application folder \
-            https://github.com/fchollet/keras/tree/master/keras/applications')
-
-    optimizer = Adam(lr=1e-5)
-    optimizer_classifier = Adam(lr=1e-5)
+    optimizer = Adadelta()
+    optimizer_classifier = Adadelta()
     model_rpn.compile(optimizer=optimizer, loss=[faster_rcnn_losses.rpn_loss_cls(num_anchors),
                                                  faster_rcnn_losses.rpn_loss_regr(num_anchors)])
     model_classifier.compile(optimizer=optimizer_classifier,
@@ -162,7 +134,7 @@ def train_model(dataset_directory: str, delete_and_recreate_dataset_directory:bo
     model_all.compile(optimizer='sgd', loss='mae')
 
     epoch_length = 1000
-    num_epochs = int(options.num_epochs)
+    num_epochs = int(number_of_epochs)
     iter_num = 0
 
     losses = np.zeros((epoch_length, 5))
@@ -173,11 +145,12 @@ def train_model(dataset_directory: str, delete_and_recreate_dataset_directory:bo
     best_loss = np.Inf
 
     model_classifier.summary()
+    print(C.summary())
 
-    class_mapping_inv = {v: k for k, v in class_mapping.items()}
+    # class_mapping_inv = {v: k for k, v in class_mapping.items()}
     print('Starting training')
 
-    vis = True
+    # vis = True
 
     for epoch_num in range(num_epochs):
 
@@ -191,11 +164,11 @@ def train_model(dataset_directory: str, delete_and_recreate_dataset_directory:bo
                     mean_overlapping_bboxes = float(sum(rpn_accuracy_rpn_monitor)) / len(rpn_accuracy_rpn_monitor)
                     rpn_accuracy_rpn_monitor = []
                     print(
-                            'Average number of overlapping bounding boxes from RPN = {} for {} previous iterations'.format(
-                                    mean_overlapping_bboxes, epoch_length))
+                        'Average number of overlapping bounding boxes from RPN = {} for {} previous iterations'.format(
+                            mean_overlapping_bboxes, epoch_length))
                     if mean_overlapping_bboxes == 0:
                         print(
-                                'RPN is not producing bounding boxes that overlap the ground truth boxes. Check RPN settings or keep training.')
+                            'RPN is not producing bounding boxes that overlap the ground truth boxes. Check RPN settings or keep training.')
 
                 X, Y, img_data = next(data_gen_train)
 
@@ -245,8 +218,8 @@ def train_model(dataset_directory: str, delete_and_recreate_dataset_directory:bo
                     sel_samples = selected_pos_samples + selected_neg_samples
                 else:
                     # in the extreme case where num_rois = 1, we pick a random pos or neg sample
-                    selected_pos_samples = pos_samples.tolist()
-                    selected_neg_samples = neg_samples.tolist()
+                    # selected_pos_samples = pos_samples.tolist()
+                    # selected_neg_samples = neg_samples.tolist()
                     if np.random.randint(0, 2):
                         sel_samples = random.choice(neg_samples)
                     else:
@@ -281,7 +254,7 @@ def train_model(dataset_directory: str, delete_and_recreate_dataset_directory:bo
 
                     if C.verbose:
                         print('Mean number of bounding boxes from RPN overlapping ground truth boxes: {}'.format(
-                                mean_overlapping_bboxes))
+                            mean_overlapping_bboxes))
                         print('Classifier accuracy for bounding boxes from RPN: {}'.format(class_acc))
                         print('Loss RPN classifier: {}'.format(loss_rpn_cls))
                         print('Loss RPN regression: {}'.format(loss_rpn_regr))
@@ -312,31 +285,25 @@ if __name__ == "__main__":
     parser = OptionParser()
 
     parser.add_option("-p", "--path", dest="train_path", help="Path to training data.", default="data")
-    parser.add_option("-n", "--num_rois", dest="num_rois", help="Number of RoIs to process at once.", default=32)
-    parser.add_option("--network", dest="network", help="Base network to use. Supports vgg or resnet50.",
-                      default='resnet50')
-    parser.add_option("--hf", dest="horizontal_flips",
-                      help="Augment with horizontal flips in training. (Default=false).",
-                      action="store_true", default=False)
-    parser.add_option("--vf", dest="vertical_flips", help="Augment with vertical flips in training. (Default=false).",
-                      action="store_true", default=False)
     parser.add_option("--recreate_dataset_directory", dest="delete_and_recreate_dataset_directory",
                       help="Deletes and recreates the dataset directory",
                       action="store_true", default=False)
-    parser.add_option("--rot", "--rot_90", dest="rot_90",
-                      help="Augment with 90 degree rotations in training. (Default=false).",
-                      action="store_true", default=False)
     parser.add_option("--num_epochs", dest="num_epochs", help="Number of epochs.", default=2000)
-    parser.add_option("--config_filename", dest="config_filename", help=
-    "Location to store all the metadata related to the training (to be used when testing).",
+    parser.add_option("--configuration_name", dest="config_name",
+                      help="Name of the hyperparameter configuration to use", default="many_anchor_box_scales")
+    parser.add_option("--config_filename", dest="config_filename",
+                      help="Location to store all the metadata related to the training (to be used when testing).",
                       default="config.pickle")
     parser.add_option("--output_weight_path", dest="output_weight_path", help="Output path for weights.",
-                      default='./model_frcnn.hdf5')
-    parser.add_option("--input_weight_path", dest="input_weight_path",
-                      help="Input path for weights. If not specified, will try to load default weights provided by keras.")
+                      default='model_frcnn.hdf5')
 
     (options, args) = parser.parse_args()
 
     dataset_directory = options.train_path
+    configuration_name = options.config_name
+    output_weight_path = options.output_weight_path
+    configuration_filename = options.config_filename
+    number_of_epochs = options.num_epochs
 
-    train_model(dataset_directory, options.delete_and_recreate_dataset_directory, options)
+    train_model(dataset_directory, options.delete_and_recreate_dataset_directory, options, configuration_name,
+                output_weight_path, configuration_filename, number_of_epochs)

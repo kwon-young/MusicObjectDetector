@@ -3,6 +3,8 @@ import numpy as np
 import cv2
 import random
 import copy
+
+from keras_frcnn.Configurations.FasterRcnnConfiguration import FasterRcnnConfiguration
 from . import data_augment
 import threading
 import itertools
@@ -276,7 +278,7 @@ def threadsafe_generator(f):
     return g
 
 
-def get_anchor_gt(all_img_data, class_count, C, img_length_calc_function, mode='train'):
+def get_anchor_gt(all_img_data, class_count, C: FasterRcnnConfiguration, img_length_calc_function, mode='train'):
     # The following line is not useful with Python 3.5, it is kept for the legacy
     # all_img_data = sorted(all_img_data)
 
@@ -306,7 +308,7 @@ def get_anchor_gt(all_img_data, class_count, C, img_length_calc_function, mode='
                 assert rows == height
 
                 # get image dimensions for resizing
-                (resized_width, resized_height) = get_new_img_size(width, height, C.im_size)
+                (resized_width, resized_height) = get_new_img_size(width, height, C.resize_smallest_side_of_image_to)
 
                 # resize the image so that smalles side is length = 600px
                 x_img = cv2.resize(x_img, (resized_width, resized_height), interpolation=cv2.INTER_CUBIC)

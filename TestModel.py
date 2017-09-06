@@ -8,12 +8,11 @@ import sys
 import pickle
 from optparse import OptionParser
 import time
-from keras_frcnn import config
 from keras import backend as K
 from keras.layers import Input
 from keras.models import Model
 from keras_frcnn import roi_helpers
-
+from keras_frcnn.Configurations.FasterRcnnConfiguration import FasterRcnnConfiguration
 
 parser = OptionParser()
 
@@ -34,7 +33,7 @@ if not options.test_path:  # if filename is not given
 config_output_filename = options.config_filename
 
 with open(config_output_filename, 'rb') as f_in:
-    C = pickle.load(f_in)
+    C: FasterRcnnConfiguration = pickle.load(f_in)
 
 if C.network == 'resnet50':
     import keras_frcnn.resnet as nn
@@ -49,9 +48,9 @@ C.rot_90 = False
 img_path = options.test_path
 
 
-def format_img_size(img, C):
+def format_img_size(img, C: FasterRcnnConfiguration):
     """ formats the image size based on config """
-    img_min_side = float(C.im_size)
+    img_min_side = float(C.resize_smallest_side_of_image_to)
     (height, width, _) = img.shape
 
     if width <= height:
@@ -254,6 +253,6 @@ for idx, img_name in enumerate(sorted(os.listdir(img_path))):
 
     print('Elapsed time = {}'.format(time.time() - st))
     print(all_dets)
-    #cv2.imshow('img', img)
-    #cv2.waitKey(0)
-    cv2.imwrite('./image_results/{}.png'.format(idx),img)
+    # cv2.imshow('img', img)
+    # cv2.waitKey(0)
+    cv2.imwrite('./image_results/{}.png'.format(idx), img)

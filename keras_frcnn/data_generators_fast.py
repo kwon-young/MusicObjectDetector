@@ -7,7 +7,7 @@ import numpy
 import numpy as np
 from tqdm import tqdm
 
-from keras_frcnn.config import Config
+from keras_frcnn.Configurations.FasterRcnnConfiguration import FasterRcnnConfiguration
 from keras_frcnn.py_faster_rcnn.utils.bbox import bbox_overlaps
 from . import data_augment
 
@@ -432,11 +432,11 @@ def threadsafe_generator(f):
     return g
 
 
-def get_anchor_gt(all_img_data: List, C: Config, img_length_calc_function, mode: str = 'train'):
+def get_anchor_gt(all_img_data: List, C: FasterRcnnConfiguration, img_length_calc_function, mode: str = 'train'):
     image_anchors = {}
     for img_data in tqdm(all_img_data, desc="Pre-computing anchors for resized images"):
         (width, height) = (img_data['width'], img_data['height'])
-        (resized_width, resized_height) = get_new_img_size(width, height, C.im_size)
+        (resized_width, resized_height) = get_new_img_size(width, height, C.resize_smallest_side_of_image_to)
         anchors = get_anchors(C, width, height, resized_width, resized_height, img_length_calc_function)
         image_anchors[img_data['filepath']] = anchors
 
@@ -459,7 +459,7 @@ def get_anchor_gt(all_img_data: List, C: Config, img_length_calc_function, mode:
                 assert rows == height
 
                 # get image dimensions for resizing
-                (resized_width, resized_height) = get_new_img_size(width, height, C.im_size)
+                (resized_width, resized_height) = get_new_img_size(width, height, C.resize_smallest_side_of_image_to)
 
                 # resize the image so that smalles side is length = 600px
                 x_img = cv2.resize(x_img, (resized_width, resized_height), interpolation=cv2.INTER_CUBIC)
