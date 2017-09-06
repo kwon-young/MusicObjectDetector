@@ -131,7 +131,7 @@ def train_model(dataset_directory: str, delete_and_recreate_dataset_directory: b
                              loss=[faster_rcnn_losses.class_loss_cls,
                                    faster_rcnn_losses.class_loss_regr(len(classes_count) - 1)],
                              metrics={'dense_class_{}'.format(len(classes_count)): 'accuracy'})
-    model_all.compile(optimizer='sgd', loss='mae')
+    model_all.compile(optimizer=Adadelta(), loss='mae')
 
     epoch_length = 1000
     num_epochs = int(number_of_epochs)
