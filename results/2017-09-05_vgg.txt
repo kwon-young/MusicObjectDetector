@@ -1,0 +1,179 @@
+C:\Programming\Anaconda3\python.exe C:/Users/Alex/Repositories/MusicObjectDetector/Train_FasterRCNN.py --network vgg
+Using TensorFlow backend.
+Using vgg network for training
+Parsing annotation files
+Training images per class:
+{'16th_flag': 593,
+ '16th_rest': 498,
+ '8th_flag': 2505,
+ '8th_rest': 1301,
+ 'accent': 280,
+ 'arpeggio_wobble': 23,
+ 'beam': 6477,
+ 'bg': 0,
+ 'breath_mark': 15,
+ 'c-clef': 188,
+ 'curved-line_(tie-or-slur)': 1,
+ 'dotted_horizontal_spanner': 2,
+ 'double_sharp': 42,
+ 'duration-dot': 2557,
+ 'dynamics_text': 714,
+ 'f-clef': 285,
+ 'fermata': 35,
+ 'flat': 1259,
+ 'g-clef': 369,
+ 'glissando': 28,
+ 'grace-notehead-full': 417,
+ 'grace_strikethrough': 80,
+ 'hairpin-cresc': 128,
+ 'hairpin-decr': 227,
+ 'half_rest': 237,
+ 'instrument_specific': 58,
+ 'key_signature': 693,
+ 'ledger_line': 8183,
+ 'letter_A': 12,
+ 'letter_C': 6,
+ 'letter_E': 2,
+ 'letter_F': 23,
+ 'letter_L': 13,
+ 'letter_M': 64,
+ 'letter_P': 108,
+ 'letter_R': 40,
+ 'letter_S': 1,
+ 'letter_T': 18,
+ 'letter_V': 6,
+ 'letter_a': 99,
+ 'letter_b': 7,
+ 'letter_c': 273,
+ 'letter_d': 205,
+ 'letter_e': 575,
+ 'letter_f': 539,
+ 'letter_g': 24,
+ 'letter_i': 109,
+ 'letter_j': 11,
+ 'letter_l': 98,
+ 'letter_m': 179,
+ 'letter_n': 110,
+ 'letter_o': 410,
+ 'letter_other': 39,
+ 'letter_p': 591,
+ 'letter_r': 486,
+ 'letter_s': 417,
+ 'letter_t': 315,
+ 'letter_u': 65,
+ 'letter_v': 12,
+ 'letter_x': 12,
+ 'letter_z': 48,
+ 'measure_separator': 2808,
+ 'multi-measure_rest': 49,
+ 'multi-staff_brace': 34,
+ 'multi-staff_bracket': 2,
+ 'multiple-note_tremolo': 115,
+ 'natural': 1258,
+ 'notehead-empty': 1922,
+ 'notehead-full': 25069,
+ 'numeral_0': 9,
+ 'numeral_1': 16,
+ 'numeral_2': 40,
+ 'numeral_3': 383,
+ 'numeral_4': 151,
+ 'numeral_5': 10,
+ 'numeral_6': 30,
+ 'numeral_7': 20,
+ 'numeral_8': 33,
+ 'ornament(s)': 82,
+ 'other-clef': 5,
+ 'other-dot': 283,
+ 'other_numeric_sign': 16,
+ 'other_text': 257,
+ 'quarter_rest': 940,
+ 'repeat': 73,
+ 'repeat-dot': 359,
+ 'repeat_measure': 17,
+ 'sharp': 2269,
+ 'slur': 2293,
+ 'staccato-dot': 1828,
+ 'staff_grouping': 41,
+ 'stem': 25321,
+ 'tempo_text': 86,
+ 'tenuto': 153,
+ 'thick_barline': 39,
+ 'thin_barline': 3267,
+ 'tie': 679,
+ 'time_signature': 212,
+ 'transposition_text': 3,
+ 'trill': 206,
+ 'trill_wobble': 27,
+ 'tuple': 280,
+ 'tuple_bracketline': 47,
+ 'unclassified': 27,
+ 'whole-time_mark': 33,
+ 'whole_rest': 176}
+Num classes (including bg) = 106
+Config has been written to config.pickle, and can be loaded when testing to ensure correct results
+Num train samples 4481
+Num val samples 856
+loading weights from vgg16_weights_tf_dim_ordering_tf_kernels.h5
+Could not load pretrained model weights. Weights can be found in the keras application folder 		https://github.com/fchollet/keras/tree/master/keras/applications
+____________________________________________________________________________________________________
+Layer (type)                     Output Shape          Param #     Connected to                     
+====================================================================================================
+input_1 (InputLayer)             (None, None, None, 3) 0                                            
+____________________________________________________________________________________________________
+block1_conv1 (Conv2D)            (None, None, None, 64 1792        input_1[0][0]                    
+____________________________________________________________________________________________________
+block1_conv2 (Conv2D)            (None, None, None, 64 36928       block1_conv1[0][0]               
+____________________________________________________________________________________________________
+block1_pool (MaxPooling2D)       (None, None, None, 64 0           block1_conv2[0][0]               
+____________________________________________________________________________________________________
+block2_conv1 (Conv2D)            (None, None, None, 12 73856       block1_pool[0][0]                
+____________________________________________________________________________________________________
+block2_conv2 (Conv2D)            (None, None, None, 12 147584      block2_conv1[0][0]               
+____________________________________________________________________________________________________
+block2_pool (MaxPooling2D)       (None, None, None, 12 0           block2_conv2[0][0]               
+____________________________________________________________________________________________________
+block3_conv1 (Conv2D)            (None, None, None, 25 295168      block2_pool[0][0]                
+____________________________________________________________________________________________________
+block3_conv2 (Conv2D)            (None, None, None, 25 590080      block3_conv1[0][0]               
+____________________________________________________________________________________________________
+block3_conv3 (Conv2D)            (None, None, None, 25 590080      block3_conv2[0][0]               
+____________________________________________________________________________________________________
+block3_pool (MaxPooling2D)       (None, None, None, 25 0           block3_conv3[0][0]               
+____________________________________________________________________________________________________
+block4_conv1 (Conv2D)            (None, None, None, 51 1180160     block3_pool[0][0]                
+____________________________________________________________________________________________________
+block4_conv2 (Conv2D)            (None, None, None, 51 2359808     block4_conv1[0][0]               
+____________________________________________________________________________________________________
+block4_conv3 (Conv2D)            (None, None, None, 51 2359808     block4_conv2[0][0]               
+____________________________________________________________________________________________________
+block4_pool (MaxPooling2D)       (None, None, None, 51 0           block4_conv3[0][0]               
+____________________________________________________________________________________________________
+block5_conv1 (Conv2D)            (None, None, None, 51 2359808     block4_pool[0][0]                
+____________________________________________________________________________________________________
+block5_conv2 (Conv2D)            (None, None, None, 51 2359808     block5_conv1[0][0]               
+____________________________________________________________________________________________________
+block5_conv3 (Conv2D)            (None, None, None, 51 2359808     block5_conv2[0][0]               
+____________________________________________________________________________________________________
+input_2 (InputLayer)             (None, None, 4)       0                                            
+____________________________________________________________________________________________________
+roi_pooling_conv_1 (RoiPoolingCo (None, 32, 7, 7, 512) 0           block5_conv3[0][0]               
+                                                                   input_2[0][0]                    
+____________________________________________________________________________________________________
+time_distributed_1 (TimeDistribu (None, 32, 25088)     0           roi_pooling_conv_1[0][0]         
+____________________________________________________________________________________________________
+time_distributed_2 (TimeDistribu (None, 32, 4096)      102764544   time_distributed_1[0][0]         
+____________________________________________________________________________________________________
+time_distributed_3 (TimeDistribu (None, 32, 4096)      16781312    time_distributed_2[0][0]         
+____________________________________________________________________________________________________
+dense_class_106 (TimeDistributed (None, 32, 106)       434282      time_distributed_3[0][0]         
+____________________________________________________________________________________________________
+dense_regress_106 (TimeDistribut (None, 32, 420)       1720740     time_distributed_3[0][0]         
+====================================================================================================
+Total params: 136,415,566
+Trainable params: 136,415,566
+Non-trainable params: 0
+____________________________________________________________________________________________________
+Starting training
+Epoch 1/2000
+
+Process finished with exit code 1

@@ -220,3 +220,4 @@ output.txt
 *.hdf5
 testdata
 image_results
+*.pickle
