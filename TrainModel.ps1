@@ -31,36 +31,113 @@ cd ..
 # Upcoming Trainings 
 ################################################
 
-# Started on Donki, 06.09.2017
+# Started on Donki, 07.09.2017
+$base_name = "2017-09-07_5-epochs"
+$number_of_epochs = 5
 $configuration_name = "streched_anchor_box_ratios"
-$base_name = "2017-09-06"
 Start-Transcript -path "$($pathToTranscript)$($base_name)_$($configuration_name).txt" -append
-python "$($pathToTranscript)TrainModel.py" --configuration_name $configuration_name --output_weight_path "$($base_name)_$($configuration_name).hdf5" --config_filename "$($base_name)_$($configuration_name).pickle" --num_epochs 5
+python "$($pathToTranscript)TrainModel.py" --configuration_name $configuration_name --output_weight_path "$($base_name)_$($configuration_name).hdf5" --config_filename "$($base_name)_$($configuration_name).pickle" --num_epochs $number_of_epochs
 Stop-Transcript
 
 $configuration_name = "small_anchor_box_scales"
-$base_name = "2017-09-06"
 Start-Transcript -path "$($pathToTranscript)$($base_name)_$($configuration_name).txt" -append
-python "$($pathToTranscript)TrainModel.py" --configuration_name $configuration_name --output_weight_path "$($base_name)_$($configuration_name).hdf5" --config_filename "$($base_name)_$($configuration_name).pickle" --num_epochs 5
+python "$($pathToTranscript)TrainModel.py" --configuration_name $configuration_name --output_weight_path "$($base_name)_$($configuration_name).hdf5" --config_filename "$($base_name)_$($configuration_name).pickle" --num_epochs $number_of_epochs
 Stop-Transcript
 
 $configuration_name = "many_anchor_box_scales"
-$base_name = "2017-09-06"
 Start-Transcript -path "$($pathToTranscript)$($base_name)_$($configuration_name).txt" -append
-python "$($pathToTranscript)TrainModel.py" --configuration_name $configuration_name --output_weight_path "$($base_name)_$($configuration_name).hdf5" --config_filename "$($base_name)_$($configuration_name).pickle" --num_epochs 5
+python "$($pathToTranscript)TrainModel.py" --configuration_name $configuration_name --output_weight_path "$($base_name)_$($configuration_name).hdf5" --config_filename "$($base_name)_$($configuration_name).pickle" --num_epochs $number_of_epochs
 Stop-Transcript
 
 $configuration_name = "small_images"
-$base_name = "2017-09-06"
 Start-Transcript -path "$($pathToTranscript)$($base_name)_$($configuration_name).txt" -append
-python "$($pathToTranscript)TrainModel.py" --configuration_name $configuration_name --output_weight_path "$($base_name)_$($configuration_name).hdf5" --config_filename "$($base_name)_$($configuration_name).pickle" --num_epochs 5
+python "$($pathToTranscript)TrainModel.py" --configuration_name $configuration_name --output_weight_path "$($base_name)_$($configuration_name).hdf5" --config_filename "$($base_name)_$($configuration_name).pickle" --num_epochs $number_of_epochs
 Stop-Transcript
 
-$configuration_name = "many_anchor_box_scales_many_rois"
-$base_name = "2017-09-06"
+$configuration_name = "many_anchor_box_scales_many_rois_large_stride"
 Start-Transcript -path "$($pathToTranscript)$($base_name)_$($configuration_name).txt" -append
-python "$($pathToTranscript)TrainModel.py" --configuration_name $configuration_name --output_weight_path "$($base_name)_$($configuration_name).hdf5" --config_filename "$($base_name)_$($configuration_name).pickle" --num_epochs 5
+python "$($pathToTranscript)TrainModel.py" --configuration_name $configuration_name --output_weight_path "$($base_name)_$($configuration_name).hdf5" --config_filename "$($base_name)_$($configuration_name).pickle" --num_epochs $number_of_epochs
 Stop-Transcript
+
+$configuration_name = "many_anchor_box_scales_many_rois_medium_stride"
+Start-Transcript -path "$($pathToTranscript)$($base_name)_$($configuration_name).txt" -append
+python "$($pathToTranscript)TrainModel.py" --configuration_name $configuration_name --output_weight_path "$($base_name)_$($configuration_name).hdf5" --config_filename "$($base_name)_$($configuration_name).pickle" --num_epochs $number_of_epochs
+Stop-Transcript
+
+$configuration_name = "many_anchor_box_scales_many_rois_small_stride"
+Start-Transcript -path "$($pathToTranscript)$($base_name)_$($configuration_name).txt" -append
+python "$($pathToTranscript)TrainModel.py" --configuration_name $configuration_name --output_weight_path "$($base_name)_$($configuration_name).hdf5" --config_filename "$($base_name)_$($configuration_name).pickle" --num_epochs $number_of_epochs
+Stop-Transcript
+
+
+$base_name = "2017-09-08_500-epochs"
+$number_of_epochs = 500
+$configuration_name = "streched_anchor_box_ratios"
+Start-Transcript -path "$($pathToTranscript)$($base_name)_$($configuration_name).txt" -append
+python "$($pathToTranscript)TrainModel.py" --configuration_name $configuration_name --output_weight_path "$($base_name)_$($configuration_name).hdf5" --config_filename "$($base_name)_$($configuration_name).pickle" --num_epochs $number_of_epochs
+Stop-Transcript
+
+$configuration_name = "small_anchor_box_scales"
+Start-Transcript -path "$($pathToTranscript)$($base_name)_$($configuration_name).txt" -append
+python "$($pathToTranscript)TrainModel.py" --configuration_name $configuration_name --output_weight_path "$($base_name)_$($configuration_name).hdf5" --config_filename "$($base_name)_$($configuration_name).pickle" --num_epochs $number_of_epochs
+Stop-Transcript
+
+$configuration_name = "many_anchor_box_scales"
+Start-Transcript -path "$($pathToTranscript)$($base_name)_$($configuration_name).txt" -append
+python "$($pathToTranscript)TrainModel.py" --configuration_name $configuration_name --output_weight_path "$($base_name)_$($configuration_name).hdf5" --config_filename "$($base_name)_$($configuration_name).pickle" --num_epochs $number_of_epochs
+Stop-Transcript
+
+$configuration_name = "many_anchor_box_scales_many_rois_small_stride"
+Start-Transcript -path "$($pathToTranscript)$($base_name)_$($configuration_name).txt" -append
+python "$($pathToTranscript)TrainModel.py" --configuration_name $configuration_name --output_weight_path "$($base_name)_$($configuration_name).hdf5" --config_filename "$($base_name)_$($configuration_name).pickle" --num_epochs $number_of_epochs
+Stop-Transcript
+
+$configuration_name = "many_anchor_box_scales_many_rois_medium_stride"
+Start-Transcript -path "$($pathToTranscript)$($base_name)_$($configuration_name).txt" -append
+python "$($pathToTranscript)TrainModel.py" --configuration_name $configuration_name --output_weight_path "$($base_name)_$($configuration_name).hdf5" --config_filename "$($base_name)_$($configuration_name).pickle" --num_epochs $number_of_epochs
+Stop-Transcript
+
+
+$configuration_name = "many_anchor_box_scales_many_rois_large_stride"
+Start-Transcript -path "$($pathToTranscript)$($base_name)_$($configuration_name).txt" -append
+python "$($pathToTranscript)TrainModel.py" --configuration_name $configuration_name --output_weight_path "$($base_name)_$($configuration_name).hdf5" --config_filename "$($base_name)_$($configuration_name).pickle" --num_epochs $number_of_epochs
+Stop-Transcript
+
+
+$base_name = "2017-09-09_1000-epochs"
+$number_of_epochs = 1000
+$configuration_name = "streched_anchor_box_ratios"
+Start-Transcript -path "$($pathToTranscript)$($base_name)_$($configuration_name).txt" -append
+python "$($pathToTranscript)TrainModel.py" --configuration_name $configuration_name --output_weight_path "$($base_name)_$($configuration_name).hdf5" --config_filename "$($base_name)_$($configuration_name).pickle" --num_epochs $number_of_epochs
+Stop-Transcript
+
+$configuration_name = "small_anchor_box_scales"
+Start-Transcript -path "$($pathToTranscript)$($base_name)_$($configuration_name).txt" -append
+python "$($pathToTranscript)TrainModel.py" --configuration_name $configuration_name --output_weight_path "$($base_name)_$($configuration_name).hdf5" --config_filename "$($base_name)_$($configuration_name).pickle" --num_epochs $number_of_epochs
+Stop-Transcript
+
+$configuration_name = "many_anchor_box_scales"
+Start-Transcript -path "$($pathToTranscript)$($base_name)_$($configuration_name).txt" -append
+python "$($pathToTranscript)TrainModel.py" --configuration_name $configuration_name --output_weight_path "$($base_name)_$($configuration_name).hdf5" --config_filename "$($base_name)_$($configuration_name).pickle" --num_epochs $number_of_epochs
+Stop-Transcript
+
+$configuration_name = "many_anchor_box_scales_many_rois_small_stride"
+Start-Transcript -path "$($pathToTranscript)$($base_name)_$($configuration_name).txt" -append
+python "$($pathToTranscript)TrainModel.py" --configuration_name $configuration_name --output_weight_path "$($base_name)_$($configuration_name).hdf5" --config_filename "$($base_name)_$($configuration_name).pickle" --num_epochs $number_of_epochs
+Stop-Transcript
+
+$configuration_name = "many_anchor_box_scales_many_rois_medium_stride"
+Start-Transcript -path "$($pathToTranscript)$($base_name)_$($configuration_name).txt" -append
+python "$($pathToTranscript)TrainModel.py" --configuration_name $configuration_name --output_weight_path "$($base_name)_$($configuration_name).hdf5" --config_filename "$($base_name)_$($configuration_name).pickle" --num_epochs $number_of_epochs
+Stop-Transcript
+
+
+$configuration_name = "many_anchor_box_scales_many_rois_large_stride"
+Start-Transcript -path "$($pathToTranscript)$($base_name)_$($configuration_name).txt" -append
+python "$($pathToTranscript)TrainModel.py" --configuration_name $configuration_name --output_weight_path "$($base_name)_$($configuration_name).hdf5" --config_filename "$($base_name)_$($configuration_name).pickle" --num_epochs $number_of_epochs
+Stop-Transcript
+
+
 
 
 #######################################################

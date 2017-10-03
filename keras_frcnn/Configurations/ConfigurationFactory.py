@@ -1,7 +1,12 @@
 from typing import List
 
 from keras_frcnn.Configurations.FasterRcnnConfiguration import FasterRcnnConfiguration
-from keras_frcnn.Configurations.ManyAnchorBoxScalesManyRoisConfig import ManyAnchorBoxScalesManyRoisConfig
+from keras_frcnn.Configurations.ManyAnchorBoxScalesManyRoisLargeStrideConfig import \
+    ManyAnchorBoxScalesManyRoisLargeStrideConfig
+from keras_frcnn.Configurations.ManyAnchorBoxScalesManyRoisMediumStrideConfig import \
+    ManyAnchorBoxScalesManyRoisMediumStrideConfig
+from keras_frcnn.Configurations.ManyAnchorBoxScalesManyRoisSmallStrideConfig import \
+    ManyAnchorBoxScalesManyRoisSmallStrideConfig
 from keras_frcnn.Configurations.SmallImagesConfig import SmallImagesConfig
 from keras_frcnn.Configurations.StrechedAnchorBoxRatiosConfig import StrechedAnchorBoxRatiosConfig
 from keras_frcnn.Configurations.ManyAnchorBoxScalesConfig import ManyAnchorBoxScalesConfig
@@ -21,14 +26,15 @@ class ConfigurationFactory:
 
         raise Exception("No configuration found by name {0}".format(name))
 
-
     @staticmethod
     def get_all_configurations() -> List[FasterRcnnConfiguration]:
         configurations = [OriginalPascalVocConfig(),
                           ManyAnchorBoxScalesConfig(),
                           StrechedAnchorBoxRatiosConfig(),
                           SmallAnchorBoxScalesConfig(),
-                          ManyAnchorBoxScalesManyRoisConfig(),
+                          ManyAnchorBoxScalesManyRoisSmallStrideConfig(),
+                          ManyAnchorBoxScalesManyRoisMediumStrideConfig(),
+                          ManyAnchorBoxScalesManyRoisLargeStrideConfig(),
                           SmallImagesConfig()]
         return configurations
 
