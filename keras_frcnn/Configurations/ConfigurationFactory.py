@@ -1,6 +1,7 @@
 from typing import List
 
 from keras_frcnn.Configurations.FasterRcnnConfiguration import FasterRcnnConfiguration
+from keras_frcnn.Configurations.ManyAnchorBoxRatiosConfig import ManyAnchorBoxRatiosConfig
 from keras_frcnn.Configurations.ManyAnchorBoxScalesManyRoisLargeStrideConfig import \
     ManyAnchorBoxScalesManyRoisLargeStrideConfig
 from keras_frcnn.Configurations.ManyAnchorBoxScalesManyRoisMediumStrideConfig import \
@@ -35,7 +36,8 @@ class ConfigurationFactory:
                           ManyAnchorBoxScalesManyRoisSmallStrideConfig(),
                           ManyAnchorBoxScalesManyRoisMediumStrideConfig(),
                           ManyAnchorBoxScalesManyRoisLargeStrideConfig(),
-                          SmallImagesConfig()]
+                          SmallImagesConfig(),
+                          ManyAnchorBoxRatiosConfig()]
         return configurations
 
 
