@@ -284,17 +284,17 @@ def train_model(dataset_directory: str, delete_and_recreate_dataset_directory: b
 if __name__ == "__main__":
     parser = OptionParser()
 
-    parser.add_option("-p", "--path", dest="train_path", help="Path to training data.", default="data")
+    parser.add_option("-p", "--path", type="str", dest="train_path", help="Path to training data.", default="data")
     parser.add_option("--recreate_dataset_directory", dest="delete_and_recreate_dataset_directory",
                       help="Deletes and recreates the dataset directory",
                       action="store_true", default=False)
-    parser.add_option("--num_epochs", dest="num_epochs", help="Number of epochs.", default=2000)
-    parser.add_option("--configuration_name", dest="config_name",
+    parser.add_option("--num_epochs", type="int", dest="num_epochs", help="Number of epochs.", default=2000)
+    parser.add_option("--configuration_name", type="str", dest="config_name",
                       help="Name of the hyperparameter configuration to use", default="many_anchor_box_scales")
-    parser.add_option("--config_filename", dest="config_filename",
+    parser.add_option("--config_filename", type="str", dest="config_filename",
                       help="Location to store all the metadata related to the training (to be used when testing).",
                       default="config.pickle")
-    parser.add_option("--output_weight_path", dest="output_weight_path", help="Output path for weights.",
+    parser.add_option("--output_weight_path", type="str", dest="output_weight_path", help="Output path for weights.",
                       default='model_frcnn.hdf5')
 
     (options, args) = parser.parse_args()
