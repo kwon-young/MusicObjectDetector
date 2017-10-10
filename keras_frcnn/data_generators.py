@@ -261,7 +261,7 @@ def get_anchor_gt(all_img_data, class_count: dict, C: FasterRcnnConfiguration, i
 
     while True:
         if mode == 'train':
-            random.shuffle(all_img_data)
+            np.random.shuffle(all_img_data)
 
         for img_data in all_img_data:
             try:
