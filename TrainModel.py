@@ -17,7 +17,7 @@ from omrdatasettools.downloaders.CvcMuscimaDatasetDownloader import CvcMuscimaDa
 from omrdatasettools.downloaders.MuscimaPlusPlusDatasetDownloader import MuscimaPlusPlusDatasetDownloader
 
 import keras_frcnn.roi_helpers as roi_helpers
-from keras_frcnn import data_generators_fast, faster_rcnn_losses
+from keras_frcnn import data_generators_fast, faster_rcnn_losses, data_generators
 from keras_frcnn.Configurations.ConfigurationFactory import ConfigurationFactory
 from keras_frcnn.muscima_image_cutter import delete_unused_images, cut_images
 from keras_frcnn.muscima_pp_cropped_image_parser import get_data
@@ -97,11 +97,11 @@ def train_model(dataset_directory: str, delete_and_recreate_dataset_directory: b
     print('Num train samples {}'.format(len(train_imgs)))
     print('Num val samples {}'.format(len(val_imgs)))
 
-    # data_gen_train = data_generators.get_anchor_gt(train_imgs, classes_count, C, nn.get_img_output_length, mode='train')
-    # data_gen_val = data_generators.get_anchor_gt(val_imgs, classes_count, C, nn.get_img_output_length, mode='val')
+    data_gen_train = data_generators.get_anchor_gt(train_imgs, classes_count, C, nn.get_img_output_length, mode='train')
+    data_gen_val = data_generators.get_anchor_gt(val_imgs, classes_count, C, nn.get_img_output_length, mode='val')
 
-    data_gen_train = data_generators_fast.get_anchor_gt(train_imgs, C, nn.get_img_output_length, mode='train')
-    data_gen_val = data_generators_fast.get_anchor_gt(val_imgs, C, nn.get_img_output_length, mode='val')
+    # data_gen_train = data_generators_fast.get_anchor_gt(train_imgs, classes_count, C, nn.get_img_output_length, mode='train')
+    # data_gen_val = data_generators_fast.get_anchor_gt(val_imgs, classes_count, C, nn.get_img_output_length, mode='val')
 
     input_shape_img = (None, None, 3)
 
