@@ -8,6 +8,7 @@ import numpy as np
 from tqdm import tqdm
 
 from keras_frcnn.Configurations.FasterRcnnConfiguration import FasterRcnnConfiguration
+from keras_frcnn.SampleSelector import SampleSelector
 from keras_frcnn.py_faster_rcnn.utils.bbox import bbox_overlaps
 from . import data_augment
 
@@ -360,7 +361,7 @@ def calc_rpn2(C, img_data, width, height, resized_width, resized_height, anchors
         valid_is_box_valid[able_inds] = 1
     else:
         valid_is_box_valid[fg_inds] = 1
-    # get  positives reress
+    # get positives regress
     fg_inds = np.where(valid_is_box_valid == 1)[0]
     for i in range(len(fg_inds)):
         anchor_box = valid_anchors[fg_inds[i], :4]
@@ -432,7 +433,8 @@ def threadsafe_generator(f):
     return g
 
 
-def get_anchor_gt(all_img_data: List, C: FasterRcnnConfiguration, img_length_calc_function, mode: str = 'train'):
+def get_anchor_gt(all_img_data: List, classes_count: dict, C: FasterRcnnConfiguration, img_length_calc_function,
+                  mode: str = 'train'):
     image_anchors = {}
     for img_data in tqdm(all_img_data, desc="Pre-computing anchors for resized images"):
         (width, height) = (img_data['width'], img_data['height'])
@@ -440,12 +442,17 @@ def get_anchor_gt(all_img_data: List, C: FasterRcnnConfiguration, img_length_cal
         anchors = get_anchors(C, width, height, resized_width, resized_height, img_length_calc_function)
         image_anchors[img_data['filepath']] = anchors
 
+    sample_selector = SampleSelector(classes_count)
+
     while True:
         if mode == 'train':
             random.shuffle(all_img_data)
 
         for img_data in all_img_data:
             try:
+                if C.balanced_classes and sample_selector.skip_sample_for_balanced_class(img_data):
+                    continue
+
                 # read in image, and optionally add augmentation
                 if mode == 'train':
                     img_data_aug, x_img = data_augment.augment(img_data, C, augment=True)
@@ -466,12 +473,18 @@ def get_anchor_gt(all_img_data: List, C: FasterRcnnConfiguration, img_length_cal
 
                 try:
                     # start_time = time.time()
+                    y_rpn_cls, y_rpn_regr = calc_rpn(C, img_data_aug, width, height, resized_width, resized_height, img_length_calc_function)
+
                     anchors = image_anchors[img_data['filepath']]
-                    y_rpn_cls, y_rpn_regr = calc_rpn2(C, img_data_aug, width, height, resized_width, resized_height,
-                                                      anchors)
-                    # y_rpn_cls, y_rpn_regr = calc_rpn(C, img_data_aug, width, height, resized_width, resized_height, img_length_calc_function)
-                    # end_time = time.time() - start_time
-                    # print  end_time
+                    y_rpn_cls2, y_rpn_regr2 = calc_rpn2(C, img_data_aug, width, height, resized_width, resized_height,
+                                    anchors)
+                    if not np.array_equal(y_rpn_cls, y_rpn_cls2):
+                        print("Arrays 1 not equal - this might be an error")
+                    if not np.array_equal(y_rpn_regr, y_rpn_regr2):
+                        print("Arrays 2 not equal - this might be an error")
+
+                    # duration = time.time() - start_time
+                    # print (duration)
                 except:
                     continue
 
