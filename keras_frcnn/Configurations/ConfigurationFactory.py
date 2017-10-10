@@ -9,7 +9,7 @@ from keras_frcnn.Configurations.ManyAnchorBoxScalesManyRoisMediumStrideConfig im
 from keras_frcnn.Configurations.ManyAnchorBoxScalesManyRoisSmallStrideConfig import \
     ManyAnchorBoxScalesManyRoisSmallStrideConfig
 from keras_frcnn.Configurations.SmallImagesConfig import SmallImagesConfig
-from keras_frcnn.Configurations.StrechedAnchorBoxRatiosConfig import StrechedAnchorBoxRatiosConfig
+from keras_frcnn.Configurations.StretchedAnchorBoxRatiosConfig import StretchedAnchorBoxRatiosConfig
 from keras_frcnn.Configurations.ManyAnchorBoxScalesConfig import ManyAnchorBoxScalesConfig
 from keras_frcnn.Configurations.OriginalPascalVocConfig import OriginalPascalVocConfig
 from keras_frcnn.Configurations.SmallAnchorBoxScalesConfig import SmallAnchorBoxScalesConfig
@@ -31,7 +31,7 @@ class ConfigurationFactory:
     def get_all_configurations() -> List[FasterRcnnConfiguration]:
         configurations = [OriginalPascalVocConfig(),
                           ManyAnchorBoxScalesConfig(),
-                          StrechedAnchorBoxRatiosConfig(),
+                          StretchedAnchorBoxRatiosConfig(),
                           SmallAnchorBoxScalesConfig(),
                           ManyAnchorBoxScalesManyRoisSmallStrideConfig(),
                           ManyAnchorBoxScalesManyRoisMediumStrideConfig(),

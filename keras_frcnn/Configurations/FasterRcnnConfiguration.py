@@ -1,12 +1,15 @@
 from abc import abstractmethod
 from typing import List
+import math
 
 
 class FasterRcnnConfiguration(object):
     def __init__(self,
                  network: str = 'resnet50',
                  anchor_box_scales: List[int] = [128, 256, 512],
-                 anchor_box_ratios: List[List[int]] = [[1, 1], [1, 2], [2, 1]],
+                 anchor_box_ratios: List[List[int]] = [[1, 1],
+                                                       [1 / math.sqrt(2), 2 / math.sqrt(2)],
+                                                       [2 / math.sqrt(2), 1 / math.sqrt(2)]],
                  resize_smallest_side_of_image_to: int = 600,
                  use_horizontal_flip_augmentation: bool = False,
                  use_vertical_flip_augmentation: bool = False,
