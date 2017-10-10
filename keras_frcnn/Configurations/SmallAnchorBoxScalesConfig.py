@@ -16,6 +16,7 @@ class SmallAnchorBoxScalesConfig(FasterRcnnConfiguration):
     def name(self) -> str:
         return "small_anchor_box_scales"
 
+
 if __name__ == "__main__":
     configuration = SmallAnchorBoxScalesConfig()
     print(configuration.summary())
