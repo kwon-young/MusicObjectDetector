@@ -55,7 +55,7 @@ def get_new_img_size(width, height, img_min_side=600):
     return resized_width, resized_height
 
 
-def calc_rpn(C, img_data, width, height, resized_width, resized_height, img_length_calc_function):
+def calc_rpn_slow(C, img_data, width, height, resized_width, resized_height, img_length_calc_function):
     downscale = float(C.rpn_stride)
     anchor_sizes = C.anchor_box_scales
     anchor_ratios = C.anchor_box_ratios
@@ -312,7 +312,7 @@ def get_anchors(C, width, height, resized_width, resized_height, img_length_calc
     return all_anchors
 
 
-def calc_rpn2(C, img_data, width, height, resized_width, resized_height, anchors):
+def calc_rpn_fast(C, img_data, width, height, resized_width, resized_height, anchors):
     num_regions = 256
 
     num_bboxes = len(img_data['bboxes'])
@@ -473,15 +473,15 @@ def get_anchor_gt(all_img_data: List, classes_count: dict, C: FasterRcnnConfigur
 
                 try:
                     # start_time = time.time()
-                    y_rpn_cls, y_rpn_regr = calc_rpn(C, img_data_aug, width, height, resized_width, resized_height, img_length_calc_function)
+                    #y_rpn_cls, y_rpn_regr = calc_rpn_slow(C, img_data_aug, width, height, resized_width, resized_height, img_length_calc_function)
 
                     anchors = image_anchors[img_data['filepath']]
-                    y_rpn_cls2, y_rpn_regr2 = calc_rpn2(C, img_data_aug, width, height, resized_width, resized_height,
-                                    anchors)
-                    if not np.array_equal(y_rpn_cls, y_rpn_cls2):
-                        print("Arrays 1 not equal - this might be an error")
-                    if not np.array_equal(y_rpn_regr, y_rpn_regr2):
-                        print("Arrays 2 not equal - this might be an error")
+                    y_rpn_cls, y_rpn_regr = calc_rpn_fast(C, img_data_aug, width, height, resized_width, resized_height,
+                                                            anchors)
+                    # if not np.array_equal(y_rpn_cls, y_rpn_cls2):
+                    #     print("Arrays 1 not equal - this might be an error")
+                    # if not np.array_equal(y_rpn_regr, y_rpn_regr2):
+                    #     print("Arrays 2 not equal - this might be an error")
 
                     # duration = time.time() - start_time
                     # print (duration)

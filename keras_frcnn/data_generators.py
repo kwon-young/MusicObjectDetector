@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 import random
 import threading
+from typing import List
 
 import cv2
 import numpy as np
@@ -253,10 +254,8 @@ def threadsafe_generator(f):
     return g
 
 
-def get_anchor_gt(all_img_data, class_count: dict, C: FasterRcnnConfiguration, img_length_calc_function, mode='train'):
-    # The following line is not useful with Python 3.5, it is kept for the legacy
-    # all_img_data = sorted(all_img_data)
-
+def get_anchor_gt(all_img_data: List[dict], class_count: dict, C: FasterRcnnConfiguration, img_length_calc_function,
+                  mode: str = 'train'):
     sample_selector = SampleSelector(class_count)
 
     while True:
