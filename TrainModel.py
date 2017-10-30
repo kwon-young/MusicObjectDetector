@@ -113,7 +113,8 @@ def train_model(dataset_directory: str, delete_and_recreate_dataset_directory: b
     data_gen_train = data_generators.get_anchor_gt(train_imgs, classes_count, C, nn.get_img_output_length, mode='train')
     data_gen_val = data_generators.get_anchor_gt(val_imgs, classes_count, C, nn.get_img_output_length, mode='val')
 
-    data_gen_train = data_generators_fast.get_anchor_gt(train_imgs, classes_count, C, nn.get_img_output_length, mode='train')
+    data_gen_train = data_generators_fast.get_anchor_gt(train_imgs, classes_count, C, nn.get_img_output_length,
+                                                        mode='train')
     data_gen_val = data_generators_fast.get_anchor_gt(val_imgs, classes_count, C, nn.get_img_output_length, mode='val')
 
     input_shape_img = (None, None, 3)
@@ -156,14 +157,14 @@ def train_model(dataset_directory: str, delete_and_recreate_dataset_directory: b
     iter_num = 0
 
     losses = np.zeros((epoch_length, 5))
-    losses_val=np.zeros((validation_epoch_length,5))
+    losses_val = np.zeros((validation_epoch_length, 5))
 
     rpn_accuracy_rpn_monitor = []
     rpn_accuracy_for_epoch = []
     start_time = time.time()
 
     best_loss_training = np.inf
-    best_loss = np.Inf
+    best_loss_validation = np.Inf
     best_loss_epoch = 0
 
     model_classifier.summary()
@@ -189,7 +190,7 @@ def train_model(dataset_directory: str, delete_and_recreate_dataset_directory: b
                     mean_overlapping_bboxes = float(sum(rpn_accuracy_rpn_monitor)) / len(rpn_accuracy_rpn_monitor)
                     rpn_accuracy_rpn_monitor = []
                     print(
-                            'Average number of overlapping bounding boxes from RPN = {} for {} previous iterations'.format(
+                            '\nAverage number of overlapping bounding boxes from RPN = {} for {} previous iterations'.format(
                                     mean_overlapping_bboxes, epoch_length))
                     if mean_overlapping_bboxes == 0:
                         print(
@@ -295,12 +296,11 @@ def train_model(dataset_directory: str, delete_and_recreate_dataset_directory: b
                               epoch_num)
 
                     if curr_loss < best_loss_training:
-                        if C.verbose:
-                            print('Total loss decreased from {0:.3f} to {1:.3f}, saving weights'.format(
-                                    best_loss_training,
-                                    curr_loss))
-                        best_loss_training = curr_loss
                         model_path = C.model_path[:-5] + "_training.hdf5"
+                        if C.verbose:
+                            print('Total training loss decreased from {0:.3f} to {1:.3f}, saving weights to {2}'
+                                  .format(best_loss_training, curr_loss, model_path))
+                        best_loss_training = curr_loss
                         model_all.save_weights(model_path)
 
                     break
@@ -404,14 +404,15 @@ def train_model(dataset_directory: str, delete_and_recreate_dataset_directory: b
                             print('Loss RPN regression: {}'.format(loss_rpn_regr))
                             print('Loss Detector classifier: {}'.format(loss_class_cls))
                             print('Loss Detector regression: {}'.format(loss_class_regr))
-                            print("current loss: %.2f, best loss: %.2f at epoch: %d" % (
-                                curr_loss, best_loss, best_loss_epoch))
+                            print("Current validation loss: {0:.3f}, Best validation loss: {1:.3f} at epoch: {2}"
+                                  .format(curr_loss, best_loss_validation, best_loss_epoch))
                             print('Elapsed time: {}'.format(time.time() - start_time))
 
-                        if curr_loss < best_loss:
+                        if curr_loss < best_loss_validation:
                             if C.verbose:
-                                print('Total loss decreased from {} to {}, saving weights'.format(best_loss, curr_loss))
-                            best_loss = curr_loss
+                                print('Total validation loss decreased from {0:.3f} to {1:.3f}, saving weights to {2}'
+                                      .format(best_loss_validation, curr_loss, C.model_path))
+                            best_loss_validation = curr_loss
                             best_loss_epoch = epoch_num
                             model_all.save_weights(C.model_path)
                         start_time = time.time()
