@@ -25,7 +25,6 @@ from keras_frcnn.Configurations.ConfigurationFactory import ConfigurationFactory
 from keras_frcnn.muscima_image_cutter import delete_unused_images, cut_images
 from keras_frcnn.muscima_pp_cropped_image_parser import get_data
 
-
 def write_log(callback, names, logs, batch_no):
     for name, value in zip(names, logs):
         summary = tensorflow.Summary()
@@ -34,10 +33,10 @@ def write_log(callback, names, logs, batch_no):
         summary_value.tag = name
         callback.writer.add_summary(summary, batch_no)
         callback.writer.flush()
-
-
-def train_model(dataset_directory: str, delete_and_recreate_dataset_directory: bool, options, configuration_name: str,
-                output_weight_path: str, configuration_filename: str, number_of_epochs: int):
+        
+def train_model(dataset_directory: str, delete_and_recreate_dataset_directory: bool, configuration_name: str,
+                output_weight_path: str, configuration_filename: str, number_of_epochs: int,
+                input_weight_path: str = None):
     muscima_pp_raw_dataset_directory = os.path.join(dataset_directory, "muscima_pp_raw")
     muscima_image_directory = os.path.join(dataset_directory, "cvcmuscima_staff_removal")
     muscima_cropped_directory = os.path.join(dataset_directory, "muscima_pp_cropped_images")
@@ -140,6 +139,14 @@ def train_model(dataset_directory: str, delete_and_recreate_dataset_directory: b
     tensorboard_callback = TensorBoard(
             log_dir="./logs/{0}_{1}/".format(start_of_training, configuration_name))
     tensorboard_callback.set_model(model_all)
+
+    try:
+        print('Loading weights from {0}'.format(input_weight_path))
+        model_rpn.load_weights(input_weight_path, by_name=True)
+        model_classifier.load_weights(input_weight_path, by_name=True)
+    except:
+        print('Could not load pretrained model weights. Weights can be found in the keras application folder \
+            https://github.com/fchollet/keras/tree/master/keras/applications')
 
     optimizer = Adadelta()
     optimizer_classifier = Adadelta()
@@ -439,6 +446,8 @@ if __name__ == "__main__":
                       default="config.pickle")
     parser.add_option("--output_weight_path", type="str", dest="output_weight_path", help="Output path for weights.",
                       default='model_frcnn.hdf5')
+    parser.add_option("--input_weight_path", type="str", dest="input_weight_path",
+                      help="Input path for weights. If not specified, will try to load default weights provided by keras.")
 
     (options, args) = parser.parse_args()
 
@@ -447,6 +456,7 @@ if __name__ == "__main__":
     output_weight_path = options.output_weight_path
     configuration_filename = options.config_filename
     number_of_epochs = options.num_epochs
+    input_weight_path = options.input_weight_path
 
-    train_model(dataset_directory, options.delete_and_recreate_dataset_directory, options, configuration_name,
-                output_weight_path, configuration_filename, number_of_epochs)
+    train_model(dataset_directory, options.delete_and_recreate_dataset_directory, configuration_name,
+                output_weight_path, configuration_filename, number_of_epochs, input_weight_path)
