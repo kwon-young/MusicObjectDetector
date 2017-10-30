@@ -1,3 +1,4 @@
+import datetime
 import os
 import pickle
 import pprint
@@ -7,7 +8,9 @@ import time
 from optparse import OptionParser
 
 import numpy as np
+import tensorflow
 from keras import backend as K
+from keras.callbacks import TensorBoard
 from keras.layers import Input
 from keras.models import Model
 from keras.optimizers import Adadelta
@@ -23,8 +26,18 @@ from keras_frcnn.muscima_image_cutter import delete_unused_images, cut_images
 from keras_frcnn.muscima_pp_cropped_image_parser import get_data
 
 
+def write_log(callback, names, logs, batch_no):
+    for name, value in zip(names, logs):
+        summary = tensorflow.Summary()
+        summary_value = summary.value.add()
+        summary_value.simple_value = value
+        summary_value.tag = name
+        callback.writer.add_summary(summary, batch_no)
+        callback.writer.flush()
+
+
 def train_model(dataset_directory: str, delete_and_recreate_dataset_directory: bool, options, configuration_name: str,
-                output_weight_path: str, configuration_filename: str, epochs: int):
+                output_weight_path: str, configuration_filename: str, number_of_epochs: int):
     muscima_pp_raw_dataset_directory = os.path.join(dataset_directory, "muscima_pp_raw")
     muscima_image_directory = os.path.join(dataset_directory, "cvcmuscima_staff_removal")
     muscima_cropped_directory = os.path.join(dataset_directory, "muscima_pp_cropped_images")
@@ -85,14 +98,14 @@ def train_model(dataset_directory: str, delete_and_recreate_dataset_directory: b
     with open(config_output_filename, 'wb') as config_f:
         pickle.dump(C, config_f)
         print('Config has been written to {}, and can be loaded when testing to ensure correct results'.format(
-            config_output_filename))
+                config_output_filename))
 
     random.shuffle(all_images)
 
     # num_imgs = len(all_images)
 
-    train_imgs = [s for s in all_images if s['imageset'] == 'trainval']
-    val_imgs = [s for s in all_images if s['imageset'] == 'test']
+    train_imgs = [s for s in all_images if s['imageset'] == 'train']
+    val_imgs = [s for s in all_images if s['imageset'] == 'val']
 
     print('Num train samples {}'.format(len(train_imgs)))
     print('Num val samples {}'.format(len(val_imgs)))
@@ -100,8 +113,8 @@ def train_model(dataset_directory: str, delete_and_recreate_dataset_directory: b
     data_gen_train = data_generators.get_anchor_gt(train_imgs, classes_count, C, nn.get_img_output_length, mode='train')
     data_gen_val = data_generators.get_anchor_gt(val_imgs, classes_count, C, nn.get_img_output_length, mode='val')
 
-    # data_gen_train = data_generators_fast.get_anchor_gt(train_imgs, classes_count, C, nn.get_img_output_length, mode='train')
-    # data_gen_val = data_generators_fast.get_anchor_gt(val_imgs, classes_count, C, nn.get_img_output_length, mode='val')
+    data_gen_train = data_generators_fast.get_anchor_gt(train_imgs, classes_count, C, nn.get_img_output_length, mode='train')
+    data_gen_val = data_generators_fast.get_anchor_gt(val_imgs, classes_count, C, nn.get_img_output_length, mode='val')
 
     input_shape_img = (None, None, 3)
 
@@ -122,6 +135,10 @@ def train_model(dataset_directory: str, delete_and_recreate_dataset_directory: b
 
     # this is a model that holds both the RPN and the classifier, used to load/save weights for the models
     model_all = Model([img_input, roi_input], rpn[:2] + classifier)
+    start_of_training = datetime.date.today()
+    tensorboard_callback = TensorBoard(
+            log_dir="./logs/{0}_{1}/".format(start_of_training, configuration_name))
+    tensorboard_callback.set_model(model_all)
 
     optimizer = Adadelta()
     optimizer_classifier = Adadelta()
@@ -134,15 +151,20 @@ def train_model(dataset_directory: str, delete_and_recreate_dataset_directory: b
     model_all.compile(optimizer=Adadelta(), loss='mae')
 
     epoch_length = 1000
-    num_epochs = int(number_of_epochs)
+    validation_epoch_length = len(val_imgs)
+    validation_interval = 1
     iter_num = 0
 
     losses = np.zeros((epoch_length, 5))
+    losses_val=np.zeros((validation_epoch_length,5))
+
     rpn_accuracy_rpn_monitor = []
     rpn_accuracy_for_epoch = []
     start_time = time.time()
 
+    best_loss_training = np.inf
     best_loss = np.Inf
+    best_loss_epoch = 0
 
     model_classifier.summary()
     print(C.summary())
@@ -150,12 +172,15 @@ def train_model(dataset_directory: str, delete_and_recreate_dataset_directory: b
     # class_mapping_inv = {v: k for k, v in class_mapping.items()}
     print('Starting training')
 
-    # vis = True
+    train_names = ['train_loss_rpn_cls', 'train_loss_rpn_reg', 'train_loss_class_cls', 'train_loss_class_reg',
+                   'train_total_loss', 'train_acc']
+    val_names = ['val_loss_rpn_cls', 'val_loss_rpn_reg', 'val_loss_class_cls', 'val_loss_class_reg', 'val_total_loss',
+                 'val_acc']
 
-    for epoch_num in range(num_epochs):
+    for epoch_num in range(number_of_epochs):
 
         progbar = generic_utils.Progbar(epoch_length)
-        print('Epoch {}/{}'.format(epoch_num + 1, num_epochs))
+        print('Epoch {}/{}'.format(epoch_num + 1, number_of_epochs))
 
         while True:
             try:
@@ -164,11 +189,11 @@ def train_model(dataset_directory: str, delete_and_recreate_dataset_directory: b
                     mean_overlapping_bboxes = float(sum(rpn_accuracy_rpn_monitor)) / len(rpn_accuracy_rpn_monitor)
                     rpn_accuracy_rpn_monitor = []
                     print(
-                        'Average number of overlapping bounding boxes from RPN = {} for {} previous iterations'.format(
-                            mean_overlapping_bboxes, epoch_length))
+                            'Average number of overlapping bounding boxes from RPN = {} for {} previous iterations'.format(
+                                    mean_overlapping_bboxes, epoch_length))
                     if mean_overlapping_bboxes == 0:
                         print(
-                            'RPN is not producing bounding boxes that overlap the ground truth boxes. Check RPN settings or keep training.')
+                                'RPN is not producing bounding boxes that overlap the ground truth boxes. Check RPN settings or keep training.')
 
                 X, Y, img_data = next(data_gen_train)
 
@@ -218,8 +243,6 @@ def train_model(dataset_directory: str, delete_and_recreate_dataset_directory: b
                     sel_samples = selected_pos_samples + selected_neg_samples
                 else:
                     # in the extreme case where num_rois = 1, we pick a random pos or neg sample
-                    # selected_pos_samples = pos_samples.tolist()
-                    # selected_neg_samples = neg_samples.tolist()
                     if np.random.randint(0, 2):
                         sel_samples = random.choice(neg_samples)
                     else:
@@ -253,30 +276,149 @@ def train_model(dataset_directory: str, delete_and_recreate_dataset_directory: b
                     rpn_accuracy_for_epoch = []
 
                     if C.verbose:
+                        print('[INFO TRAINING]')
                         print('Mean number of bounding boxes from RPN overlapping ground truth boxes: {}'.format(
-                            mean_overlapping_bboxes))
+                                mean_overlapping_bboxes))
                         print('Classifier accuracy for bounding boxes from RPN: {}'.format(class_acc))
                         print('Loss RPN classifier: {}'.format(loss_rpn_cls))
                         print('Loss RPN regression: {}'.format(loss_rpn_regr))
                         print('Loss Detector classifier: {}'.format(loss_class_cls))
                         print('Loss Detector regression: {}'.format(loss_class_regr))
                         print('Elapsed time: {}'.format(time.time() - start_time))
+                        print("Best loss for training: {0:.3f}".format(best_loss_training))
 
                     curr_loss = loss_rpn_cls + loss_rpn_regr + loss_class_cls + loss_class_regr
                     iter_num = 0
                     start_time = time.time()
+                    write_log(tensorboard_callback, train_names,
+                              [loss_rpn_cls, loss_rpn_regr, loss_class_cls, loss_class_regr, curr_loss, class_acc],
+                              epoch_num)
 
-                    if curr_loss < best_loss:
+                    if curr_loss < best_loss_training:
                         if C.verbose:
-                            print('Total loss decreased from {} to {}, saving weights'.format(best_loss, curr_loss))
-                        best_loss = curr_loss
-                        model_all.save_weights(C.model_path)
+                            print('Total loss decreased from {0:.3f} to {1:.3f}, saving weights'.format(
+                                    best_loss_training,
+                                    curr_loss))
+                        best_loss_training = curr_loss
+                        model_path = C.model_path[:-5] + "_training.hdf5"
+                        model_all.save_weights(model_path)
 
                     break
 
             except Exception as e:
-                print('Exception: {}'.format(e))
+                print('Exception during training: {}'.format(e))
                 continue
+
+        """Validation"""
+        if (epoch_num + 1) % validation_interval == 0 and epoch_num > 0:
+            progbar = generic_utils.Progbar(validation_epoch_length)
+            while True:
+                try:
+                    X, Y, img_data = next(data_gen_val)
+
+                    loss_rpn = model_rpn.test_on_batch(X, Y)
+
+                    P_rpn = model_rpn.predict_on_batch(X)
+                    R = roi_helpers.rpn_to_roi(P_rpn[0], P_rpn[1], C, K.image_dim_ordering(), use_regr=True,
+                                               overlap_thresh=0.7, max_boxes=300)
+                    # note: calc_iou converts from (x1,y1,x2,y2) to (x,y,w,h) format
+                    X2, Y1, Y2, IouS = roi_helpers.calc_iou(R, img_data, C, class_mapping)
+
+                    neg_samples = np.where(Y1[0, :, -1] == 1)
+                    pos_samples = np.where(Y1[0, :, -1] == 0)
+
+                    if len(neg_samples) > 0:
+                        neg_samples = neg_samples[0]
+                    else:
+                        neg_samples = []
+
+                    if len(pos_samples) > 0:
+                        pos_samples = pos_samples[0]
+                    else:
+                        pos_samples = []
+
+                    rpn_accuracy_rpn_monitor.append(len(pos_samples))
+                    rpn_accuracy_for_epoch.append((len(pos_samples)))
+
+                    if C.num_rois > 1:
+                        if len(pos_samples) < C.num_rois // 2:
+                            selected_pos_samples = pos_samples.tolist()
+                        else:
+                            selected_pos_samples = np.random.choice(pos_samples, C.num_rois // 2,
+                                                                    replace=False).tolist()
+                        try:
+                            selected_neg_samples = np.random.choice(neg_samples, C.num_rois - len(selected_pos_samples),
+                                                                    replace=False).tolist()
+                        except:
+                            selected_neg_samples = np.random.choice(neg_samples, C.num_rois - len(selected_pos_samples),
+                                                                    replace=True).tolist()
+
+                        sel_samples = selected_pos_samples + selected_neg_samples
+                    else:
+                        # in the extreme case where num_rois = 1, we pick a random pos or neg sample
+                        selected_pos_samples = pos_samples.tolist()
+                        selected_neg_samples = neg_samples.tolist()
+                        if np.random.randint(0, 2):
+                            sel_samples = random.choice(neg_samples)
+                        else:
+                            sel_samples = random.choice(pos_samples)
+
+                    loss_class = model_classifier.test_on_batch([X, X2[:, sel_samples, :]],
+                                                                [Y1[:, sel_samples, :], Y2[:, sel_samples, :]])
+
+                    losses_val[iter_num, 0] = loss_rpn[1]
+                    losses_val[iter_num, 1] = loss_rpn[2]
+
+                    losses_val[iter_num, 2] = loss_class[1]
+                    losses_val[iter_num, 3] = loss_class[2]
+                    losses_val[iter_num, 4] = loss_class[3]
+
+                    iter_num += 1
+
+                    progbar.update(iter_num, [('rpn_cls', np.mean(losses_val[:iter_num, 0])),
+                                              ('rpn_regr', np.mean(losses_val[:iter_num, 1])),
+                                              ('detector_cls', np.mean(losses_val[:iter_num, 2])),
+                                              ('detector_regr', np.mean(losses_val[:iter_num, 3]))])
+
+                    if iter_num == validation_epoch_length:
+                        loss_rpn_cls = np.mean(losses_val[:, 0])
+                        loss_rpn_regr = np.mean(losses_val[:, 1])
+                        loss_class_cls = np.mean(losses_val[:, 2])
+                        loss_class_regr = np.mean(losses_val[:, 3])
+                        class_acc = np.mean(losses[:, 4])
+
+                        mean_overlapping_bboxes = float(sum(rpn_accuracy_for_epoch)) / len(rpn_accuracy_for_epoch)
+                        rpn_accuracy_for_epoch = []
+                        curr_loss = loss_rpn_cls + loss_rpn_regr + loss_class_cls + loss_class_regr
+
+                        write_log(tensorboard_callback, val_names,
+                                  [loss_rpn_cls, loss_rpn_regr, loss_class_cls, loss_class_regr, curr_loss, class_acc],
+                                  epoch_num)
+
+                        if C.verbose:
+                            print('[INFO VALIDATION]')
+                            print('Mean number of bounding boxes from RPN overlapping ground truth boxes: {}'.format(
+                                    mean_overlapping_bboxes))
+                            print('Classifier accuracy for bounding boxes from RPN: {}'.format(class_acc))
+                            print('Loss RPN classifier: {}'.format(loss_rpn_cls))
+                            print('Loss RPN regression: {}'.format(loss_rpn_regr))
+                            print('Loss Detector classifier: {}'.format(loss_class_cls))
+                            print('Loss Detector regression: {}'.format(loss_class_regr))
+                            print("current loss: %.2f, best loss: %.2f at epoch: %d" % (
+                                curr_loss, best_loss, best_loss_epoch))
+                            print('Elapsed time: {}'.format(time.time() - start_time))
+
+                        if curr_loss < best_loss:
+                            if C.verbose:
+                                print('Total loss decreased from {} to {}, saving weights'.format(best_loss, curr_loss))
+                            best_loss = curr_loss
+                            best_loss_epoch = epoch_num
+                            model_all.save_weights(C.model_path)
+                        start_time = time.time()
+                        iter_num = 0
+                        break
+                except:
+                    pass
 
     print('Training complete, exiting.')
 

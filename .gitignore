@@ -221,3 +221,4 @@ output.txt
 testdata
 image_results
 *.pickle
+logs

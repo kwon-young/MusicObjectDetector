@@ -45,9 +45,9 @@ def get_data(muscima_pp_cropped_images_directory: str, visualise: bool = False) 
                 all_imgs[filename]['height'] = rows
                 all_imgs[filename]['bboxes'] = []
                 if np.random.randint(0, 6) > 0:
-                    all_imgs[filename]['imageset'] = 'trainval'
+                    all_imgs[filename]['imageset'] = 'train'
                 else:
-                    all_imgs[filename]['imageset'] = 'test'
+                    all_imgs[filename]['imageset'] = 'val'
 
             all_imgs[filename]['bboxes'].append(
                     {'class': class_name, 'x1': left, 'x2': right, 'y1': top, 'y2': bottom})
