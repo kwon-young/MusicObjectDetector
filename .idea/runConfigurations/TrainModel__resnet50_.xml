@@ -13,7 +13,7 @@
     <module name="MusicObjectDetector" />
     <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
     <option name="SCRIPT_NAME" value="$PROJECT_DIR$/TrainModel.py" />
-    <option name="PARAMETERS" value="--network resnet50 --output_weight_path &quot;2017-09-05_resnet50.hdf5&quot;" />
+    <option name="PARAMETERS" value="--configuration_name small_images --output_weight_path &quot;2017-10-30_resnet50.hdf5&quot; --config_filename &quot;2017-10-30_resnet50.pickle&quot; --num_epochs 4" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="false" />
     <method />
