@@ -1,14 +1,13 @@
 import math
 
-from keras_frcnn.Configurations.FasterRcnnConfiguration import FasterRcnnConfiguration
+from keras_frcnn.configurations.FasterRcnnConfiguration import FasterRcnnConfiguration
 
 
 class OriginalPascalVocConfig(FasterRcnnConfiguration):
     """The original configuration that was provided along the keras_frcnn sample implementation """
 
     def __init__(self):
-        super().__init__('resnet50',
-                         anchor_box_scales=[128, 256, 512],
+        super().__init__(anchor_box_scales=[128, 256, 512],
                          anchor_box_ratios=[[1, 1],
                                             [1 / math.sqrt(2), 2 / math.sqrt(2)],
                                             [2 / math.sqrt(2), 1 / math.sqrt(2)]],

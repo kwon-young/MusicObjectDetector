@@ -7,7 +7,7 @@ import numpy
 import numpy as np
 from tqdm import tqdm
 
-from keras_frcnn.Configurations.FasterRcnnConfiguration import FasterRcnnConfiguration
+from keras_frcnn.configurations.FasterRcnnConfiguration import FasterRcnnConfiguration
 from keras_frcnn.SampleSelector import SampleSelector
 from keras_frcnn.py_faster_rcnn.utils.bbox import bbox_overlaps
 from . import data_augment

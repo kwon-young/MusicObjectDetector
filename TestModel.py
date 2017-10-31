@@ -12,7 +12,7 @@ from keras import backend as K
 from keras.layers import Input
 from keras.models import Model
 from keras_frcnn import roi_helpers
-from keras_frcnn.Configurations.FasterRcnnConfiguration import FasterRcnnConfiguration
+from keras_frcnn.configurations.FasterRcnnConfiguration import FasterRcnnConfiguration
 
 parser = OptionParser()
 

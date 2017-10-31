@@ -2,7 +2,7 @@ import numpy as np
 import pdb
 import math
 
-from keras_frcnn.Configurations.FasterRcnnConfiguration import FasterRcnnConfiguration
+from keras_frcnn.configurations.FasterRcnnConfiguration import FasterRcnnConfiguration
 from . import data_generators
 import copy
 

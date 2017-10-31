@@ -5,7 +5,6 @@ import math
 
 class FasterRcnnConfiguration(object):
     def __init__(self,
-                 network: str = 'resnet50',
                  anchor_box_scales: List[int] = [128, 256, 512],
                  anchor_box_ratios: List[List[int]] = [[1, 1],
                                                        [1 / math.sqrt(2), 2 / math.sqrt(2)],
@@ -27,7 +26,6 @@ class FasterRcnnConfiguration(object):
                  classifier_min_overlap: float = 0.1,
                  classifier_max_overlap: float = 0.5):
         self.verbose = verbose
-        self.network = network
 
         # setting for data augmentation
         self.use_horizontal_flips = use_horizontal_flip_augmentation
@@ -78,7 +76,6 @@ class FasterRcnnConfiguration(object):
         """ Returns the string that summarizes this configuration """
 
         summary = "Summary of {0}\n==============================================\n".format(self.name())
-        summary += "Network configuration {0}\n".format(self.network)
         summary += "Resizing images, so smallest side has {0} pixel\n".format(self.resize_smallest_side_of_image_to)
         summary += "Anchor box scales: {0}, Anchor box ratios: {1}\n".format(self.anchor_box_scales,
                                                                              self.anchor_box_ratios)

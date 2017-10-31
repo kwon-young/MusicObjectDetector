@@ -1,3 +1,4 @@
+import argparse
 import datetime
 import os
 import pickle
@@ -21,9 +22,10 @@ from omrdatasettools.downloaders.MuscimaPlusPlusDatasetDownloader import Muscima
 
 import keras_frcnn.roi_helpers as roi_helpers
 from keras_frcnn import data_generators_fast, faster_rcnn_losses, data_generators
-from keras_frcnn.Configurations.ConfigurationFactory import ConfigurationFactory
+from keras_frcnn.configurations.ConfigurationFactory import ConfigurationFactory
 from keras_frcnn.muscima_image_cutter import delete_unused_images, cut_images
 from keras_frcnn.muscima_pp_cropped_image_parser import get_data
+
 
 def write_log(callback, names, logs, batch_no):
     for name, value in zip(names, logs):
@@ -33,9 +35,10 @@ def write_log(callback, names, logs, batch_no):
         summary_value.tag = name
         callback.writer.add_summary(summary, batch_no)
         callback.writer.flush()
-        
-def train_model(dataset_directory: str, delete_and_recreate_dataset_directory: bool, configuration_name: str,
-                output_weight_path: str, configuration_filename: str, number_of_epochs: int,
+
+
+def train_model(dataset_directory: str, model_name: str, delete_and_recreate_dataset_directory: bool,
+                configuration_name: str, output_weight_path: str, configuration_filename: str, number_of_epochs: int,
                 input_weight_path: str = None):
     muscima_pp_raw_dataset_directory = os.path.join(dataset_directory, "muscima_pp_raw")
     muscima_image_directory = os.path.join(dataset_directory, "cvcmuscima_staff_removal")
@@ -70,9 +73,9 @@ def train_model(dataset_directory: str, delete_and_recreate_dataset_directory: b
     C = ConfigurationFactory.get_configuration_by_name(configuration_name)
     C.model_path = output_weight_path
 
-    if C.network == 'vgg':
+    if model_name == 'vgg':
         from keras_frcnn import vgg as nn
-    elif C.network == 'resnet50':
+    elif model_name == 'resnet50':
         from keras_frcnn import resnet as nn
     else:
         print('Not a valid model')
@@ -432,31 +435,37 @@ def train_model(dataset_directory: str, delete_and_recreate_dataset_directory: b
 
 
 if __name__ == "__main__":
-    parser = OptionParser()
+    parser = argparse.ArgumentParser()
 
-    parser.add_option("-p", "--path", type="str", dest="train_path", help="Path to training data.", default="data")
-    parser.add_option("--recreate_dataset_directory", dest="delete_and_recreate_dataset_directory",
-                      help="Deletes and recreates the dataset directory",
-                      action="store_true", default=False)
-    parser.add_option("--num_epochs", type="int", dest="num_epochs", help="Number of epochs.", default=2000)
-    parser.add_option("--configuration_name", type="str", dest="config_name",
-                      help="Name of the hyperparameter configuration to use", default="many_anchor_box_scales")
-    parser.add_option("--config_filename", type="str", dest="config_filename",
-                      help="Location to store all the metadata related to the training (to be used when testing).",
-                      default="config.pickle")
-    parser.add_option("--output_weight_path", type="str", dest="output_weight_path", help="Output path for weights.",
-                      default='model_frcnn.hdf5')
-    parser.add_option("--input_weight_path", type="str", dest="input_weight_path",
-                      help="Input path for weights. If not specified, will try to load default weights provided by keras.")
+    parser.add_argument("-p", "--path", type=str, dest="train_path", help="Path to training data.", default="data")
+    parser.add_argument("--model_name", type=str, default="resnet50",
+                        help="The model used for training the network. Currently one of [vgg, resnet50]")
+    parser.add_argument("--recreate_dataset_directory", dest="delete_and_recreate_dataset_directory",
+                        help="Deletes and recreates the dataset directory",
+                        action="store_true", default=False)
+    parser.add_argument("--num_epochs", type=int, dest="num_epochs", help="Number of epochs.", default=2000)
+    parser.add_argument("--configuration_name", type=str, dest="config_name",
+                        help="Name of the hyperparameter configuration to use", default="many_anchor_box_scales")
+    parser.add_argument("--config_filename", type=str, dest="config_filename",
+                        help="Location to store all the metadata related to the training (to be used when testing).",
+                        default="config.pickle")
+    parser.add_argument("--output_weight_path", type=str, dest="output_weight_path", help="Output path for weights.",
+                        default='model_frcnn.hdf5')
+    parser.add_argument("--input_weight_path", type=str, dest="input_weight_path",
+                        help="Input path for weights. If not specified, will try to load default weights provided by keras.")
 
-    (options, args) = parser.parse_args()
+    options, unparsed = parser.parse_known_args()
 
     dataset_directory = options.train_path
+    model_name = options.model_name
     configuration_name = options.config_name
     output_weight_path = options.output_weight_path
     configuration_filename = options.config_filename
     number_of_epochs = options.num_epochs
     input_weight_path = options.input_weight_path
+    learning_rate_reduction_factor = 0.5
+    learning_rate_reduction_patience = 8
+    early_stopping = 20
 
-    train_model(dataset_directory, options.delete_and_recreate_dataset_directory, configuration_name,
+    train_model(dataset_directory, model_name, options.delete_and_recreate_dataset_directory, configuration_name,
                 output_weight_path, configuration_filename, number_of_epochs, input_weight_path)
