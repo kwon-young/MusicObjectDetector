@@ -13,8 +13,9 @@ class TrainingDatasetProviderTest(unittest.TestCase):
 
         # Assert
         self.assertIsNotNone(configurations)
-        self.assertIn("many_anchor_box_ratios", configurations)
-        self.assertIn("original_pascal_voc", configurations)
+        configuration_names = [c.name() for c in configurations]
+        self.assertIn("many_anchor_box_ratios", configuration_names)
+        self.assertIn("original_pascal_voc", configuration_names)
 
 
 if __name__ == '__main__':
