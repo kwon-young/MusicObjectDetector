@@ -1,0 +1,277 @@
+C:\Programming\Anaconda3\python.exe C:/Users/Alex/Repositories/MusicObjectDetector/TrainModel.py --configuration_name vgg_small_images --input_weight_path vgg16_weights_tf_dim_ordering_tf_kernels.h5
+Using TensorFlow backend.
+Parsing annotation files
+Training images per class:
+{'16th_flag': 593,
+ '16th_rest': 498,
+ '8th_flag': 2505,
+ '8th_rest': 1301,
+ 'accent': 280,
+ 'arpeggio_wobble': 23,
+ 'beam': 6477,
+ 'bg': 0,
+ 'breath_mark': 15,
+ 'c-clef': 188,
+ 'curved-line_(tie-or-slur)': 1,
+ 'dotted_horizontal_spanner': 2,
+ 'double_sharp': 42,
+ 'duration-dot': 2557,
+ 'dynamics_text': 714,
+ 'f-clef': 285,
+ 'fermata': 35,
+ 'flat': 1259,
+ 'g-clef': 369,
+ 'glissando': 28,
+ 'grace-notehead-full': 417,
+ 'grace_strikethrough': 80,
+ 'hairpin-cresc': 128,
+ 'hairpin-decr': 227,
+ 'half_rest': 237,
+ 'instrument_specific': 58,
+ 'key_signature': 693,
+ 'ledger_line': 8183,
+ 'letter_A': 12,
+ 'letter_C': 6,
+ 'letter_E': 2,
+ 'letter_F': 23,
+ 'letter_L': 13,
+ 'letter_M': 64,
+ 'letter_P': 108,
+ 'letter_R': 40,
+ 'letter_S': 1,
+ 'letter_T': 18,
+ 'letter_V': 6,
+ 'letter_a': 99,
+ 'letter_b': 7,
+ 'letter_c': 273,
+ 'letter_d': 205,
+ 'letter_e': 575,
+ 'letter_f': 539,
+ 'letter_g': 24,
+ 'letter_i': 109,
+ 'letter_j': 11,
+ 'letter_l': 98,
+ 'letter_m': 179,
+ 'letter_n': 110,
+ 'letter_o': 410,
+ 'letter_other': 39,
+ 'letter_p': 591,
+ 'letter_r': 486,
+ 'letter_s': 417,
+ 'letter_t': 315,
+ 'letter_u': 65,
+ 'letter_v': 12,
+ 'letter_x': 12,
+ 'letter_z': 48,
+ 'measure_separator': 2808,
+ 'multi-measure_rest': 49,
+ 'multi-staff_brace': 34,
+ 'multi-staff_bracket': 2,
+ 'multiple-note_tremolo': 115,
+ 'natural': 1258,
+ 'notehead-empty': 1922,
+ 'notehead-full': 25069,
+ 'numeral_0': 9,
+ 'numeral_1': 16,
+ 'numeral_2': 40,
+ 'numeral_3': 383,
+ 'numeral_4': 151,
+ 'numeral_5': 10,
+ 'numeral_6': 30,
+ 'numeral_7': 20,
+ 'numeral_8': 33,
+ 'ornament(s)': 82,
+ 'other-clef': 5,
+ 'other-dot': 283,
+ 'other_numeric_sign': 16,
+ 'other_text': 257,
+ 'quarter_rest': 940,
+ 'repeat': 73,
+ 'repeat-dot': 359,
+ 'repeat_measure': 17,
+ 'sharp': 2269,
+ 'slur': 2293,
+ 'staccato-dot': 1828,
+ 'staff_grouping': 41,
+ 'stem': 25321,
+ 'tempo_text': 86,
+ 'tenuto': 153,
+ 'thick_barline': 39,
+ 'thin_barline': 3267,
+ 'tie': 679,
+ 'time_signature': 212,
+ 'transposition_text': 3,
+ 'trill': 206,
+ 'trill_wobble': 27,
+ 'tuple': 280,
+ 'tuple_bracketline': 47,
+ 'unclassified': 27,
+ 'whole-time_mark': 33,
+ 'whole_rest': 176}
+Num classes (including bg) = 106
+Config has been written to config.pickle, and can be loaded when testing to ensure correct results
+Num train samples 4462
+Num val samples 875
+Loading weights from vgg16_weights_tf_dim_ordering_tf_kernels.h5
+2017-10-11 14:21:32.361874: W C:\tf_jenkins\home\workspace\rel-win\M\windows-gpu\PY\36\tensorflow\core\platform\cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use AVX instructions, but these are available on your machine and could speed up CPU computations.
+2017-10-11 14:21:32.362095: W C:\tf_jenkins\home\workspace\rel-win\M\windows-gpu\PY\36\tensorflow\core\platform\cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use AVX2 instructions, but these are available on your machine and could speed up CPU computations.
+2017-10-11 14:21:32.666558: I C:\tf_jenkins\home\workspace\rel-win\M\windows-gpu\PY\36\tensorflow\core\common_runtime\gpu\gpu_device.cc:955] Found device 0 with properties: 
+name: GeForce GTX 1080 Ti
+major: 6 minor: 1 memoryClockRate (GHz) 1.582
+pciBusID 0000:01:00.0
+Total memory: 11.00GiB
+Free memory: 9.12GiB
+2017-10-11 14:21:32.666795: I C:\tf_jenkins\home\workspace\rel-win\M\windows-gpu\PY\36\tensorflow\core\common_runtime\gpu\gpu_device.cc:976] DMA: 0 
+2017-10-11 14:21:32.666905: I C:\tf_jenkins\home\workspace\rel-win\M\windows-gpu\PY\36\tensorflow\core\common_runtime\gpu\gpu_device.cc:986] 0:   Y 
+2017-10-11 14:21:32.667055: I C:\tf_jenkins\home\workspace\rel-win\M\windows-gpu\PY\36\tensorflow\core\common_runtime\gpu\gpu_device.cc:1045] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GTX 1080 Ti, pci bus id: 0000:01:00.0)
+____________________________________________________________________________________________________
+Layer (type)                     Output Shape          Param #     Connected to                     
+====================================================================================================
+input_1 (InputLayer)             (None, None, None, 3) 0                                            
+____________________________________________________________________________________________________
+block1_conv1 (Conv2D)            (None, None, None, 64 1792        input_1[0][0]                    
+____________________________________________________________________________________________________
+block1_conv2 (Conv2D)            (None, None, None, 64 36928       block1_conv1[0][0]               
+____________________________________________________________________________________________________
+block1_pool (MaxPooling2D)       (None, None, None, 64 0           block1_conv2[0][0]               
+____________________________________________________________________________________________________
+block2_conv1 (Conv2D)            (None, None, None, 12 73856       block1_pool[0][0]                
+____________________________________________________________________________________________________
+block2_conv2 (Conv2D)            (None, None, None, 12 147584      block2_conv1[0][0]               
+____________________________________________________________________________________________________
+block2_pool (MaxPooling2D)       (None, None, None, 12 0           block2_conv2[0][0]               
+____________________________________________________________________________________________________
+block3_conv1 (Conv2D)            (None, None, None, 25 295168      block2_pool[0][0]                
+____________________________________________________________________________________________________
+block3_conv2 (Conv2D)            (None, None, None, 25 590080      block3_conv1[0][0]               
+____________________________________________________________________________________________________
+block3_conv3 (Conv2D)            (None, None, None, 25 590080      block3_conv2[0][0]               
+____________________________________________________________________________________________________
+block3_pool (MaxPooling2D)       (None, None, None, 25 0           block3_conv3[0][0]               
+____________________________________________________________________________________________________
+block4_conv1 (Conv2D)            (None, None, None, 51 1180160     block3_pool[0][0]                
+____________________________________________________________________________________________________
+block4_conv2 (Conv2D)            (None, None, None, 51 2359808     block4_conv1[0][0]               
+____________________________________________________________________________________________________
+block4_conv3 (Conv2D)            (None, None, None, 51 2359808     block4_conv2[0][0]               
+____________________________________________________________________________________________________
+block4_pool (MaxPooling2D)       (None, None, None, 51 0           block4_conv3[0][0]               
+____________________________________________________________________________________________________
+block5_conv1 (Conv2D)            (None, None, None, 51 2359808     block4_pool[0][0]                
+____________________________________________________________________________________________________
+block5_conv2 (Conv2D)            (None, None, None, 51 2359808     block5_conv1[0][0]               
+____________________________________________________________________________________________________
+block5_conv3 (Conv2D)            (None, None, None, 51 2359808     block5_conv2[0][0]               
+____________________________________________________________________________________________________
+input_2 (InputLayer)             (None, None, 4)       0                                            
+____________________________________________________________________________________________________
+roi_pooling_conv_1 (RoiPoolingCo (None, 32, 7, 7, 512) 0           block5_conv3[0][0]               
+                                                                   input_2[0][0]                    
+____________________________________________________________________________________________________
+time_distributed_1 (TimeDistribu (None, 32, 25088)     0           roi_pooling_conv_1[0][0]         
+____________________________________________________________________________________________________
+time_distributed_2 (TimeDistribu (None, 32, 4096)      102764544   time_distributed_1[0][0]         
+____________________________________________________________________________________________________
+time_distributed_3 (TimeDistribu (None, 32, 4096)      16781312    time_distributed_2[0][0]         
+____________________________________________________________________________________________________
+dense_class_106 (TimeDistributed (None, 32, 106)       434282      time_distributed_3[0][0]         
+____________________________________________________________________________________________________
+dense_regress_106 (TimeDistribut (None, 32, 420)       1720740     time_distributed_3[0][0]         
+====================================================================================================
+Total params: 136,415,566
+Trainable params: 136,415,566
+Non-trainable params: 0
+____________________________________________________________________________________________________
+Summary of vgg_small_images
+==============================================
+Network configuration vgg
+Resizing images, so smallest side has 200 pixel
+Anchor box scales: [8, 16, 24, 32, 64], Anchor box ratios: [[1, 1], [0.7071067811865475, 1.414213562373095], [1.414213562373095, 0.7071067811865475]]
+Data-augmentation: Horizontal flip: False, vertical flip: False, 90° rotation: False
+Image channel mean [103.939, 116.779, 123.68], Image scaling factor 1.0, STD scaling 4.0, classifier regr std [8.0, 8.0, 4.0, 4.0]
+Number of ROIs at once: 32, RPN Stride: 16
+Is the dataset balanced: False
+Region Proposal Network overlap: Minimum 0.3, Maximum 0.7
+Classifier overlap: Minimum 0.1, Maximum 0.5
+
+Starting training
+Epoch 1/2000
+ 994/1000 [============================>.] - ETA: 5s - rpn_cls: 4.0091 - rpn_regr: 0.8047 - detector_cls: 1.7503 - detector_regr: 0.3558Average number of overlapping bounding boxes from RPN = 13.001 for 1000 previous iterations
+1000/1000 [==============================] - 887s - rpn_cls: 4.0013 - rpn_regr: 0.8038 - detector_cls: 1.7483 - detector_regr: 0.3552   
+Mean number of bounding boxes from RPN overlapping ground truth boxes: 13.041749502982107
+Classifier accuracy for bounding boxes from RPN: 0.7040625
+Loss RPN classifier: 2.710609201746271
+Loss RPN regression: 0.6551873698793351
+Loss Detector classifier: 1.4168547781854868
+Loss Detector regression: 0.25855609053643547
+Elapsed time: 887.5775139331818
+Total loss decreased from inf to 5.041207440347528, saving weights
+Epoch 2/2000
+ 986/1000 [============================>.] - ETA: 12s - rpn_cls: 1.5986 - rpn_regr: 0.5049 - detector_cls: 1.0562 - detector_regr: 0.1832Average number of overlapping bounding boxes from RPN = 15.777 for 1000 previous iterations
+1000/1000 [==============================] - 857s - rpn_cls: 1.5969 - rpn_regr: 0.5047 - detector_cls: 1.0555 - detector_regr: 0.1832   
+Mean number of bounding boxes from RPN overlapping ground truth boxes: 15.79265873015873
+Classifier accuracy for bounding boxes from RPN: 0.73915625
+Loss RPN classifier: 1.47435226957303
+Loss RPN regression: 0.48705586916580795
+Loss Detector classifier: 1.0061416988596321
+Loss Detector regression: 0.17861956628545886
+Elapsed time: 863.4335501194
+Total loss decreased from 5.041207440347528 to 3.146169403883929, saving weights
+Epoch 3/2000
+ 980/1000 [============================>.] - ETA: 17s - rpn_cls: 1.1575 - rpn_regr: 0.4551 - detector_cls: 0.9018 - detector_regr: 0.1572Average number of overlapping bounding boxes from RPN = 17.227 for 1000 previous iterations
+1000/1000 [==============================] - 864s - rpn_cls: 1.1572 - rpn_regr: 0.4548 - detector_cls: 0.9011 - detector_regr: 0.1570   
+Mean number of bounding boxes from RPN overlapping ground truth boxes: 17.25944333996024
+Classifier accuracy for bounding boxes from RPN: 0.757
+Loss RPN classifier: 1.1415713630292597
+Loss RPN regression: 0.43674272060766817
+Loss Detector classifier: 0.8658232875540852
+Loss Detector regression: 0.14831732283321616
+Elapsed time: 866.385410785675
+Total loss decreased from 3.146169403883929 to 2.5924546940242292, saving weights
+Epoch 4/2000
+ 973/1000 [============================>.] - ETA: 23s - rpn_cls: 0.9572 - rpn_regr: 0.3859 - detector_cls: 0.7309 - detector_regr: 0.1310Average number of overlapping bounding boxes from RPN = 17.839 for 1000 previous iterations
+1000/1000 [==============================] - 862s - rpn_cls: 0.9567 - rpn_regr: 0.3858 - detector_cls: 0.7307 - detector_regr: 0.1309   
+Mean number of bounding boxes from RPN overlapping ground truth boxes: 17.72718253968254
+Classifier accuracy for bounding boxes from RPN: 0.78453125
+Loss RPN classifier: 0.9418611649330579
+Loss RPN regression: 0.38012977786920965
+Loss Detector classifier: 0.7207143308520317
+Loss Detector regression: 0.12937076429200534
+Elapsed time: 869.1851077079773
+Total loss decreased from 2.5924546940242292 to 2.172076037946305, saving weights
+Epoch 5/2000
+ 968/1000 [============================>.] - ETA: 26s - rpn_cls: 0.9352 - rpn_regr: 0.3665 - detector_cls: 0.6581 - detector_regr: 0.1263Average number of overlapping bounding boxes from RPN = 18.356 for 1000 previous iterations
+1000/1000 [==============================] - 844s - rpn_cls: 0.9336 - rpn_regr: 0.3664 - detector_cls: 0.6580 - detector_regr: 0.1261   
+Mean number of bounding boxes from RPN overlapping ground truth boxes: 18.50199203187251
+Classifier accuracy for bounding boxes from RPN: 0.80365625
+Loss RPN classifier: 0.8841029710459738
+Loss RPN regression: 0.3644304231274873
+Loss Detector classifier: 0.655511903281687
+Loss Detector regression: 0.11746143696462968
+Elapsed time: 855.274665594101
+Total loss decreased from 2.172076037946305 to 2.021506734419778, saving weights
+Epoch 6/2000
+ 959/1000 [===========================>..] - ETA: 34s - rpn_cls: 0.7295 - rpn_regr: 0.3381 - detector_cls: 0.6415 - detector_regr: 0.1147Average number of overlapping bounding boxes from RPN = 18.386 for 1000 previous iterations
+1000/1000 [==============================] - 841s - rpn_cls: 0.7297 - rpn_regr: 0.3381 - detector_cls: 0.6414 - detector_regr: 0.1146   
+Mean number of bounding boxes from RPN overlapping ground truth boxes: 18.343564356435643
+Classifier accuracy for bounding boxes from RPN: 0.80803125
+Loss RPN classifier: 0.7288478441356292
+Loss RPN regression: 0.33877266718354077
+Loss Detector classifier: 0.6387910292462439
+Loss Detector regression: 0.11301871405421116
+Elapsed time: 849.9757359027863
+Total loss decreased from 2.021506734419778 to 1.819430254619625, saving weights
+Epoch 7/2000
+ 950/1000 [===========================>..] - ETA: 42s - rpn_cls: 0.7493 - rpn_regr: 0.3240 - detector_cls: 0.5951 - detector_regr: 0.1106Average number of overlapping bounding boxes from RPN = 19.195 for 1000 previous iterations
+1000/1000 [==============================] - 836s - rpn_cls: 0.7480 - rpn_regr: 0.3240 - detector_cls: 0.5954 - detector_regr: 0.1105   
+Mean number of bounding boxes from RPN overlapping ground truth boxes: 19.145833333333332
+Classifier accuracy for bounding boxes from RPN: 0.8185
+Loss RPN classifier: 0.7181255752277956
+Loss RPN regression: 0.32061519477330147
+Loss Detector classifier: 0.5966860222528563
+Loss Detector regression: 0.10861647561745486
+Elapsed time: 838.308518409729
+Total loss decreased from 1.819430254619625 to 1.7440432678714082, saving weights
+Epoch 8/2000
+ 446/1000 [============>.................] - ETA: 469s - rpn_cls: 0.6858 - rpn_regr: 0.3109 - detector_cls: 0.5745 - detector_regr: 0.0974
+Process finished with exit code 1

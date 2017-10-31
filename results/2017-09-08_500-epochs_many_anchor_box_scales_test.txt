@@ -1,0 +1,186 @@
+﻿**********************
+Windows PowerShell transcript start
+Start time: 20171006095202
+Username: DONKEY\Alex
+RunAs User: DONKEY\Alex
+Machine: DONKEY (Microsoft Windows NT 10.0.15063.0)
+Host Application: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe C:\Users\Alex\Repositories\MusicObjectDetector\TestModel.ps1
+Process ID: 6944
+PSVersion: 5.1.15063.632
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.15063.632
+BuildVersion: 10.0.15063.632
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+Transcript started, output file is C:\Users\Alex\Repositories\MusicObjectDetector\2017-09-08_500-epochs_many_anchor_box_scales_test.txt
+Using TensorFlow backend.
+{0: 'notehead-empty', 1: 'stem', 2: 'ledger_line', 3: 'g-clef', 4: 'key_signature', 5: 'time_signature', 6: 'flat', 7: 'whole-time_mark', 8: 'letter_m', 9: 'letter_s', 10: 'letter_e', 11: 'letter_T', 12: 'notehead-full', 13: 'beam', 14: '8th_flag', 15: 'duration-dot', 16: 'slur', 17: '8th_rest', 18: 'half_rest', 19: 'letter_p', 20: 'letter_o', 21: 'letter_t', 22: 'letter_n', 23: 'letter_r', 24: 'letter_c', 25: 'letter_i', 26: 'letter_a', 27: 'letter_d', 28: 'other_text', 29: 'hairpin-cresc', 30: 'quarter_rest', 31: 'letter_f', 32: 'dynamics_text', 33: 'f-clef', 34: 'whole_rest', 35: 'natural', 36: 'grace-notehead-full', 37: 'accent', 38: 'arpeggio_wobble', 39: 'grace_strikethrough', 40: 'hairpin-decr', 41: 'sharp', 42: 'other-dot', 43: 'letter_l', 44: 'numeral_3', 45: 'tuple_bracketline', 46: 'tuple', 47: 'numeral_7', 48: 'letter_P', 49: 'instrument_specific', 50: 'numeral_6', 51: 'letter_u', 52: 'staccato-dot', 53: 'letter_A', 54: 'letter_g', 55: 'thin_barline', 56: 'measure_separator', 57: 'tie', 58: 'glissando', 59: 'c-clef', 60: 'trill', 61: 'trill_wobble', 62: '16th_flag', 63: 'thick_barline', 64: 'letter_M', 65: 'numeral_2', 66: 'numeral_4', 67: '16th_rest', 68: 'numeral_5', 69: 'numeral_8', 70: 'tempo_text', 71: 'letter_L', 72: 'letter_z', 73: 'letter_R', 74: 'fermata', 75: 'letter_j', 76: 'letter_b', 77: 'letter_V', 78: 'breath_mark', 79: 'letter_v', 80: 'repeat-dot', 81: 'repeat', 82: 'double_sharp', 83: 'numeral_1', 84: 'other_numeric_sign', 85: 'letter_F', 86: 'mul
+ti-measure_rest', 87: 'multiple-note_tremolo', 88: 'letter_other', 89: 'ornament(s)', 90: 'unclassified', 91: 'tenuto', 92: 'letter_x', 93: 'repeat_measure', 94: 'letter_C', 95: 'letter_E', 96: 'letter_S', 97: 'dotted_horizontal_spanner', 98: 'curved-line_(tie-or-slur)', 99: 'other-clef', 100: 'numeral_0', 101: 'multi-staff_brace', 102: 'staff_grouping', 103: 'transposition_text', 104: 'multi-staff_bracket', 105: 'bg'}
+Loading weights from 2017-09-08_500-epochs_many_anchor_box_scales.hdf5
+2017-10-06 09:52:14.714994: W C:\tf_jenkins\home\workspace\rel-win\M\windows-gpu\PY\36\tensorflow\core\platform\cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use AVX instructions, but these are available on your machine and could speed up CPU computations.
+2017-10-06 09:52:14.715210: W C:\tf_jenkins\home\workspace\rel-win\M\windows-gpu\PY\36\tensorflow\core\platform\cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use AVX2 instructions, but these are available on your machine and could speed up CPU computations.
+2017-10-06 09:52:15.015796: I C:\tf_jenkins\home\workspace\rel-win\M\windows-gpu\PY\36\tensorflow\core\common_runtime\gpu\gpu_device.cc:955] Found device 0 with properties:
+name: GeForce GTX 1080 Ti
+major: 6 minor: 1 memoryClockRate (GHz) 1.582
+pciBusID 0000:01:00.0
+Total memory: 11.00GiB
+Free memory: 9.12GiB
+2017-10-06 09:52:15.015973: I C:\tf_jenkins\home\workspace\rel-win\M\windows-gpu\PY\36\tensorflow\core\common_runtime\gpu\gpu_device.cc:976] DMA: 0
+2017-10-06 09:52:15.016780: I C:\tf_jenkins\home\workspace\rel-win\M\windows-gpu\PY\36\tensorflow\core\common_runtime\gpu\gpu_device.cc:986] 0:   Y
+2017-10-06 09:52:15.017461: I C:\tf_jenkins\home\workspace\rel-win\M\windows-gpu\PY\36\tensorflow\core\common_runtime\gpu\gpu_device.cc:1045] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GTX 1080 Ti, pci bus id: 0000:01:00.0)
+p002.png
+7 bounding boxes considered.
+Elapsed time = 2.6025593280792236
+[('duration-dot', 99.964642524719238), ('duration-dot', 99.815946817398071), ('duration-dot', 98.327302932739258), ('duration-dot', 93.938010931015015), ('duration-dot', 93.819320201873779), ('duration-dot', 78.279620409011841), ('letter_c', 69.527935981750488), ('other-dot', 84.490311145782471), ('notehead-full', 98.230826854705811), ('notehead-full', 70.747101306915283), ('letter_d', 52.7729332447052), ('letter_d', 43.707776069641113), ('other_text', 75.977706909179688), ('slur', 76.145118474960327)]
+p014.png
+8 bounding boxes considered.
+Elapsed time = 0.6751766204833984
+[('8th_flag', 53.575980663299561), ('notehead-full', 89.49170708656311), ('notehead-full', 83.263278007507324), ('notehead-full', 44.203844666481018), ('notehead-full', 40.381377935409546), ('duration-dot', 99.995827674865723), ('duration-dot', 99.273103475570679), ('duration-dot', 95.121175050735474), ('duration-dot', 83.742493391036987), ('duration-dot', 75.535827875137329), ('duration-dot', 61.580228805541992), ('beam', 76.708608865737915), ('letter_u', 42.39693284034729), ('slur', 99.445396661758423), ('slur', 98.502433300018311), ('other-dot', 85.117852687835693), ('letter_i', 57.955610752105713)]
+p018.png
+5 bounding boxes considered.
+Elapsed time = 0.561145544052124
+[('letter_u', 75.908702611923218), ('other_text', 58.997112512588501), ('other_text', 58.240097761154175), ('other_text', 45.0306236743927), ('letter_i', 66.374701261520386), ('duration-dot', 99.442851543426514), ('duration-dot', 95.429587364196777), ('duration-dot', 93.292593955993652), ('notehead-full', 57.949608564376831), ('notehead-full', 42.293834686279297)]
+w-01_p010_16.png
+3 bounding boxes considered.
+Elapsed time = 0.547142744064331
+[('beam', 99.893325567245483), ('beam', 99.456304311752319), ('ledger_line', 99.999964237213135), ('ledger_line', 99.999916553497314), ('ledger_line', 99.999821186065674), ('ledger_line', 99.998795986175537), ('ledger_line', 99.972289800643921), ('ledger_line', 99.824047088623047), ('notehead-full', 99.665123224258423), ('notehead-full', 91.219311952590942), ('notehead-full', 89.752340316772461), ('notehead-full', 87.557560205459595)]
+w-01_p010_3.png
+3 bounding boxes considered.
+Elapsed time = 0.5071156024932861
+[('notehead-full', 99.238377809524536), ('notehead-full', 99.07187819480896), ('notehead-full', 98.444610834121704), ('notehead-full', 98.342037200927734), ('notehead-full', 98.169887065887451), ('notehead-full', 94.452476501464844), ('notehead-full', 91.908872127532959), ('notehead-full', 88.92052173614502), ('notehead-full', 88.67449164390564), ('notehead-full', 88.506609201431274), ('notehead-full', 87.243133783340454), ('notehead-full', 80.009263753890991), ('notehead-full', 71.368670463562012), ('notehead-full', 52.319967746734619), ('ledger_line', 99.957484006881714), ('ledger_line', 99.112963676452637), ('duration-dot', 99.949169158935547), ('duration-dot', 86.636084318161011)]
+w-01_p019_19.png
+6 bounding boxes considered.
+Elapsed time = 0.49312829971313477
+[('beam', 99.702328443527222), ('8th_flag', 99.171704053878784), ('8th_flag', 92.439192533493042), ('ledger_line', 99.99997615814209), ('ledger_line', 99.999845027923584), ('ledger_line', 99.94046688079834), ('ledger_line', 99.925190210342407), ('ledger_line', 99.686336517333984), ('notehead-full', 99.999153614044189), ('notehead-full', 99.872821569442749), ('notehead-full', 85.891103744506836), ('notehead-full', 68.890506029129028), ('stem', 99.966394901275635), ('stem', 99.948453903198242), ('quarter_rest', 99.981361627578735)]
+w-01_p019_34.png
+0 bounding boxes considered.
+Elapsed time = 0.4461171627044678
+[]
+w-02_p013_6.png
+3 bounding boxes considered.
+Elapsed time = 0.5661475658416748
+[('ledger_line', 99.865293502807617), ('letter_f', 93.61799955368042), ('slur', 99.930763244628906)]
+w-02_p017_32.png
+6 bounding boxes considered.
+Elapsed time = 0.5161340236663818
+[('8th_flag', 99.397659301757813), ('8th_flag', 76.739990711212158), ('16th_flag', 98.321610689163208), ('16th_flag', 84.799832105636597), ('beam', 99.964821338653564), ('beam', 88.899129629135132), ('notehead-full', 99.660885334014893), ('notehead-full', 99.660563468933105), ('notehead-full', 97.400009632110596), ('notehead-full', 81.490069627761841), ('notehead-full', 80.592507123947144), ('notehead-full', 50.565189123153687), ('ledger_line', 99.46671724319458), ('stem', 99.852824211120605), ('stem', 58.713781833648682)]
+w-02_p017_45.png
+6 bounding boxes considered.
+Elapsed time = 0.5791511535644531
+[('ledger_line', 99.993205070495605), ('notehead-full', 99.817872047424316), ('notehead-full', 99.060165882110596), ('notehead-full', 86.182081699371338), ('16th_rest', 99.981719255447388), ('slur', 99.999356269836426), ('slur', 99.991655349731445), ('beam', 99.998867511749268), ('staccato-dot', 99.99997615814209), ('staccato-dot', 99.998688697814941), ('staccato-dot', 99.940311908721924)]
+w-03_p018_1.png
+3 bounding boxes considered.
+Elapsed time = 0.3800985813140869
+[('key_signature', 87.32839822769165), ('sharp', 94.010621309280396), ('sharp', 87.14718222618103), ('g-clef', 99.970811605453491)]
+w-03_p018_3.png
+6 bounding boxes considered.
+Elapsed time = 0.40912437438964844
+[('8th_flag', 76.197713613510132), ('notehead-full', 97.781014442443848), ('notehead-full', 86.192691326141357), ('notehead-full', 82.595217227935791), ('ledger_line', 99.999988079071045), ('ledger_line', 99.98544454574585), ('ledger_line', 99.969112873077393), ('ledger_line', 99.964773654937744), ('ledger_line', 99.771451950073242), ('dynamics_text', 99.525576829910278), ('sharp', 99.724078178405762), ('sharp', 99.162030220031738), ('sharp', 96.51261568069458), ('letter_s', 98.432630300521851)]
+w-04_p012_50.png
+8 bounding boxes considered.
+Elapsed time = 0.5301382541656494
+[('f-clef', 99.732613563537598), ('sharp', 95.895320177078247), ('sharp', 79.471063613891602), ('notehead-full', 85.836780071258545), ('repeat-dot', 99.984300136566162), ('stem', 90.598690509796143), ('key_signature', 73.979592323303223), ('repeat', 90.480953454971313), ('slur', 72.028046846389771)]
+w-05_p011_37.png
+3 bounding boxes considered.
+Elapsed time = 0.5781502723693848
+[('notehead-full', 99.999046325683594), ('notehead-full', 99.971169233322144), ('notehead-full', 99.959355592727661), ('notehead-full', 99.832290410995483), ('notehead-full', 98.556548357009888), ('whole_rest', 43.924885988235474), ('slur', 97.650265693664551)]
+**********************
+Windows PowerShell transcript end
+End time: 20171006095230
+**********************
+**********************
+Windows PowerShell transcript start
+Start time: 20171006095516
+Username: DONKEY\Alex
+RunAs User: DONKEY\Alex
+Machine: DONKEY (Microsoft Windows NT 10.0.15063.0)
+Host Application: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe C:\Users\Alex\Repositories\MusicObjectDetector\TestModel.ps1
+Process ID: 16224
+PSVersion: 5.1.15063.632
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.15063.632
+BuildVersion: 10.0.15063.632
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+Transcript started, output file is C:\Users\Alex\Repositories\MusicObjectDetector\2017-09-08_500-epochs_many_anchor_box_scales_test.txt
+Using TensorFlow backend.
+{0: 'notehead-empty', 1: 'stem', 2: 'ledger_line', 3: 'g-clef', 4: 'key_signature', 5: 'time_signature', 6: 'flat', 7: 'whole-time_mark', 8: 'letter_m', 9: 'letter_s', 10: 'letter_e', 11: 'letter_T', 12: 'notehead-full', 13: 'beam', 14: '8th_flag', 15: 'duration-dot', 16: 'slur', 17: '8th_rest', 18: 'half_rest', 19: 'letter_p', 20: 'letter_o', 21: 'letter_t', 22: 'letter_n', 23: 'letter_r', 24: 'letter_c', 25: 'letter_i', 26: 'letter_a', 27: 'letter_d', 28: 'other_text', 29: 'hairpin-cresc', 30: 'quarter_rest', 31: 'letter_f', 32: 'dynamics_text', 33: 'f-clef', 34: 'whole_rest', 35: 'natural', 36: 'grace-notehead-full', 37: 'accent', 38: 'arpeggio_wobble', 39: 'grace_strikethrough', 40: 'hairpin-decr', 41: 'sharp', 42: 'other-dot', 43: 'letter_l', 44: 'numeral_3', 45: 'tuple_bracketline', 46: 'tuple', 47: 'numeral_7', 48: 'letter_P', 49: 'instrument_specific', 50: 'numeral_6', 51: 'letter_u', 52: 'staccato-dot', 53: 'letter_A', 54: 'letter_g', 55: 'thin_barline', 56: 'measure_separator', 57: 'tie', 58: 'glissando', 59: 'c-clef', 60: 'trill', 61: 'trill_wobble', 62: '16th_flag', 63: 'thick_barline', 64: 'letter_M', 65: 'numeral_2', 66: 'numeral_4', 67: '16th_rest', 68: 'numeral_5', 69: 'numeral_8', 70: 'tempo_text', 71: 'letter_L', 72: 'letter_z', 73: 'letter_R', 74: 'fermata', 75: 'letter_j', 76: 'letter_b', 77: 'letter_V', 78: 'breath_mark', 79: 'letter_v', 80: 'repeat-dot', 81: 'repeat', 82: 'double_sharp', 83: 'numeral_1', 84: 'other_numeric_sign', 85: 'letter_F', 86: 'mul
+ti-measure_rest', 87: 'multiple-note_tremolo', 88: 'letter_other', 89: 'ornament(s)', 90: 'unclassified', 91: 'tenuto', 92: 'letter_x', 93: 'repeat_measure', 94: 'letter_C', 95: 'letter_E', 96: 'letter_S', 97: 'dotted_horizontal_spanner', 98: 'curved-line_(tie-or-slur)', 99: 'other-clef', 100: 'numeral_0', 101: 'multi-staff_brace', 102: 'staff_grouping', 103: 'transposition_text', 104: 'multi-staff_bracket', 105: 'bg'}
+Loading weights from 2017-09-08_500-epochs_many_anchor_box_scales.hdf5
+2017-10-06 09:55:37.369349: W C:\tf_jenkins\home\workspace\rel-win\M\windows-gpu\PY\36\tensorflow\core\platform\cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use AVX instructions, but these are available on your machine and could speed up CPU computations.
+2017-10-06 09:55:37.369527: W C:\tf_jenkins\home\workspace\rel-win\M\windows-gpu\PY\36\tensorflow\core\platform\cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use AVX2 instructions, but these are available on your machine and could speed up CPU computations.
+2017-10-06 09:55:37.688328: I C:\tf_jenkins\home\workspace\rel-win\M\windows-gpu\PY\36\tensorflow\core\common_runtime\gpu\gpu_device.cc:955] Found device 0 with properties:
+name: GeForce GTX 1080 Ti
+major: 6 minor: 1 memoryClockRate (GHz) 1.582
+pciBusID 0000:01:00.0
+Total memory: 11.00GiB
+Free memory: 9.12GiB
+2017-10-06 09:55:37.688532: I C:\tf_jenkins\home\workspace\rel-win\M\windows-gpu\PY\36\tensorflow\core\common_runtime\gpu\gpu_device.cc:976] DMA: 0
+2017-10-06 09:55:37.689069: I C:\tf_jenkins\home\workspace\rel-win\M\windows-gpu\PY\36\tensorflow\core\common_runtime\gpu\gpu_device.cc:986] 0:   Y
+2017-10-06 09:55:37.689200: I C:\tf_jenkins\home\workspace\rel-win\M\windows-gpu\PY\36\tensorflow\core\common_runtime\gpu\gpu_device.cc:1045] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GTX 1080 Ti, pci bus id: 0000:01:00.0)
+p002.png
+7 bounding boxes considered.
+Elapsed time = 1.818286418914795
+[('duration-dot', 99.964642524719238), ('duration-dot', 99.815946817398071), ('duration-dot', 98.327314853668213), ('duration-dot', 93.93802285194397), ('duration-dot', 93.819278478622437), ('duration-dot', 78.279358148574829), ('letter_c', 69.527316093444824), ('other-dot', 84.49060320854187), ('notehead-full', 98.230826854705811), ('notehead-full', 70.746982097625732), ('letter_d', 52.772766351699829), ('letter_d', 43.708121776580811), ('other_text', 75.977754592895508), ('slur', 76.145046949386597)]
+p014.png
+8 bounding boxes considered.
+Elapsed time = 0.563133955001831
+[('8th_flag', 53.576046228408813), ('notehead-full', 89.491724967956543), ('notehead-full', 83.263301849365234), ('notehead-full', 44.203785061836243), ('notehead-full', 40.381366014480591), ('duration-dot', 99.995827674865723), ('duration-dot', 99.273103475570679), ('duration-dot', 95.121145248413086), ('duration-dot', 83.742576837539673), ('duration-dot', 75.535774230957031), ('duration-dot', 61.580389738082886), ('beam', 76.708614826202393), ('letter_u', 42.396315932273865), ('slur', 99.445396661758423), ('slur', 98.502421379089355), ('other-dot', 85.117942094802856), ('letter_i', 57.955187559127808)]
+p018.png
+5 bounding boxes considered.
+Elapsed time = 0.5321383476257324
+[('letter_u', 75.90833306312561), ('other_text', 58.997279405593872), ('other_text', 58.240813016891479), ('other_text', 45.030555129051208), ('letter_i', 66.374784708023071), ('duration-dot', 99.442851543426514), ('duration-dot', 95.42962908744812), ('duration-dot', 93.292605876922607), ('notehead-full', 57.949656248092651), ('notehead-full', 42.293879389762878)]
+w-01_p010_16.png
+3 bounding boxes considered.
+Elapsed time = 0.5421395301818848
+[('beam', 99.893325567245483), ('beam', 99.456292390823364), ('ledger_line', 99.999964237213135), ('ledger_line', 99.999916553497314), ('ledger_line', 99.999821186065674), ('ledger_line', 99.998795986175537), ('ledger_line', 99.972289800643921), ('ledger_line', 99.824047088623047), ('notehead-full', 99.665123224258423), ('notehead-full', 91.219282150268555), ('notehead-full', 89.752340316772461), ('notehead-full', 87.557542324066162)]
+w-01_p010_3.png
+3 bounding boxes considered.
+Elapsed time = 0.5026838779449463
+[('notehead-full', 99.238377809524536), ('notehead-full', 99.07187819480896), ('notehead-full', 98.444610834121704), ('notehead-full', 98.342043161392212), ('notehead-full', 98.169875144958496), ('notehead-full', 94.452488422393799), ('notehead-full', 91.908901929855347), ('notehead-full', 88.920539617538452), ('notehead-full', 88.67449164390564), ('notehead-full', 88.506573438644409), ('notehead-full', 87.243109941482544), ('notehead-full', 80.009233951568604), ('notehead-full', 71.368712186813354), ('notehead-full', 52.319920063018799), ('ledger_line', 99.957484006881714), ('ledger_line', 99.112963676452637), ('duration-dot', 99.949169158935547), ('duration-dot', 86.636161804199219)]
+w-01_p019_19.png
+6 bounding boxes considered.
+Elapsed time = 0.4943521022796631
+[('beam', 99.702328443527222), ('8th_flag', 99.171715974807739), ('8th_flag', 92.439168691635132), ('ledger_line', 99.99997615814209), ('ledger_line', 99.999845027923584), ('ledger_line', 99.94046688079834), ('ledger_line', 99.925190210342407), ('ledger_line', 99.686336517333984), ('notehead-full', 99.999153614044189), ('notehead-full', 99.872821569442749), ('notehead-full', 85.891133546829224), ('notehead-full', 68.890506029129028), ('stem', 99.966394901275635), ('stem', 99.948453903198242), ('quarter_rest', 99.981361627578735)]
+w-01_p019_34.png
+0 bounding boxes considered.
+Elapsed time = 0.4337587356567383
+[]
+w-02_p013_6.png
+3 bounding boxes considered.
+Elapsed time = 0.5448977947235107
+[('ledger_line', 99.865293502807617), ('letter_f', 93.61797571182251), ('slur', 99.930763244628906)]
+w-02_p017_32.png
+6 bounding boxes considered.
+Elapsed time = 0.5095107555389404
+[('8th_flag', 99.397659301757813), ('8th_flag', 76.739925146102905), ('16th_flag', 98.321610689163208), ('16th_flag', 84.799814224243164), ('beam', 99.964821338653564), ('beam', 88.899135589599609), ('notehead-full', 99.660885334014893), ('notehead-full', 99.660563468933105), ('notehead-full', 97.400009632110596), ('notehead-full', 81.490069627761841), ('notehead-full', 80.592477321624756), ('notehead-full', 50.565165281295776), ('ledger_line', 99.46671724319458), ('stem', 99.852824211120605), ('stem', 58.713823556900024)]
+w-02_p017_45.png
+6 bounding boxes considered.
+Elapsed time = 0.5882015228271484
+[('ledger_line', 99.993205070495605), ('notehead-full', 99.817872047424316), ('notehead-full', 99.060165882110596), ('notehead-full', 86.182081699371338), ('16th_rest', 99.981719255447388), ('slur', 99.999356269836426), ('slur', 99.991655349731445), ('beam', 99.998867511749268), ('staccato-dot', 99.99997615814209), ('staccato-dot', 99.998688697814941), ('staccato-dot', 99.940323829650879)]
+w-03_p018_1.png
+3 bounding boxes considered.
+Elapsed time = 0.3746480941772461
+[('key_signature', 87.32837438583374), ('sharp', 94.010597467422485), ('sharp', 87.147146463394165), ('g-clef', 99.970811605453491)]
+w-03_p018_3.png
+6 bounding boxes considered.
+Elapsed time = 0.40764284133911133
+[('8th_flag', 76.19779109954834), ('notehead-full', 97.781014442443848), ('notehead-full', 86.192697286605835), ('notehead-full', 82.595324516296387), ('ledger_line', 99.999988079071045), ('ledger_line', 99.98544454574585), ('ledger_line', 99.969112873077393), ('ledger_line', 99.964773654937744), ('ledger_line', 99.771451950073242), ('dynamics_text', 99.525588750839233), ('sharp', 99.724078178405762), ('sharp', 99.162030220031738), ('sharp', 96.512621641159058), ('letter_s', 98.432630300521851)]
+w-04_p012_50.png
+8 bounding boxes considered.
+Elapsed time = 0.5285704135894775
+[('f-clef', 99.732613563537598), ('sharp', 95.895320177078247), ('sharp', 79.470920562744141), ('notehead-full', 85.836756229400635), ('repeat-dot', 99.984300136566162), ('stem', 90.598702430725098), ('key_signature', 73.979687690734863), ('repeat', 90.480953454971313), ('slur', 72.028076648712158)]
+w-05_p011_37.png
+3 bounding boxes considered.
+Elapsed time = 0.5931546688079834
+[('notehead-full', 99.999046325683594), ('notehead-full', 99.971169233322144), ('notehead-full', 99.959355592727661), ('notehead-full', 99.832290410995483), ('notehead-full', 98.556548357009888), ('whole_rest', 43.924841284751892), ('slur', 97.650241851806641)]
+**********************
+Windows PowerShell transcript end
+End time: 20171006095656
+**********************

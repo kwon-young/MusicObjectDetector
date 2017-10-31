@@ -31,6 +31,24 @@ cd ..
 # Upcoming Trainings 
 ################################################
 
+
+
+#######################################################
+# Below are configurations that already were 
+# started on a machine and should not run again, 
+# so we will terminate this PS-script here
+# but retain those configurations for documentation
+#######################################################
+exit
+
+# Started on Donki, 30.10.2017
+$base_name = "2017-10-30_500-epochs"
+$number_of_epochs = 500
+$configuration_name = "small_anchor_box_scales"
+Start-Transcript -path "$($pathToTranscript)$($base_name)_$($configuration_name).txt" -append
+python "$($pathToTranscript)TrainModel.py" --configuration_name $configuration_name --output_weight_path "$($base_name)_$($configuration_name).hdf5" --config_filename "$($base_name)_$($configuration_name).pickle" --num_epochs $number_of_epochs
+Stop-Transcript
+
 # Started on Donki, 07.09.2017
 $base_name = "2017-09-07_5-epochs"
 $number_of_epochs = 5
@@ -138,15 +156,6 @@ python "$($pathToTranscript)TrainModel.py" --configuration_name $configuration_n
 Stop-Transcript
 
 
-
-
-#######################################################
-# Below are configurations that already were 
-# started on a machine and should not run again, 
-# so we will terminate this PS-script here
-# but retain those configurations for documentation
-#######################################################
-exit
 
 # Started on Donki, 05.09.2017
 Start-Transcript -path "$($pathToTranscript)2017-09-05_resnet50.txt" -append
