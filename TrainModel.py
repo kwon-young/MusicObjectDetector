@@ -269,10 +269,10 @@ def train_model(dataset_directory: str, model_name: str, delete_and_recreate_dat
             losses[iter_num, 3] = loss_class[2]
             losses[iter_num, 4] = loss_class[3]
 
-            progbar.update(iter_num + 1,
-                           [('rpn_cls', np.mean(losses[:iter_num, 0])), ('rpn_regr', np.mean(losses[:iter_num, 1])),
-                            ('detector_cls', np.mean(losses[:iter_num, 2])),
-                            ('detector_regr', np.mean(losses[:iter_num, 3]))])
+            progbar.update(iter_num+1,
+                           [('rpn_cls', np.mean(losses[:iter_num+1, 0])), ('rpn_regr', np.mean(losses[:iter_num+1, 1])),
+                            ('detector_cls', np.mean(losses[:iter_num+1, 2])),
+                            ('detector_regr', np.mean(losses[:iter_num+1, 3]))])
 
         # Calculate losses after the specified number of iterations
         loss_rpn_cls = np.mean(losses[:, 0])
@@ -377,10 +377,10 @@ def train_model(dataset_directory: str, model_name: str, delete_and_recreate_dat
             losses_val[iter_num, 3] = loss_class[2]
             losses_val[iter_num, 4] = loss_class[3]
 
-            progbar.update(iter_num + 1, [('rpn_cls', np.mean(losses_val[:iter_num, 0])),
-                                          ('rpn_regr', np.mean(losses_val[:iter_num, 1])),
-                                          ('detector_cls', np.mean(losses_val[:iter_num, 2])),
-                                          ('detector_regr', np.mean(losses_val[:iter_num, 3]))])
+            progbar.update(iter_num + 1, [('rpn_cls', np.mean(losses_val[:iter_num+1, 0])),
+                                          ('rpn_regr', np.mean(losses_val[:iter_num+1, 1])),
+                                          ('detector_cls', np.mean(losses_val[:iter_num+1, 2])),
+                                          ('detector_regr', np.mean(losses_val[:iter_num+1, 3]))])
 
         # Computer aggregated losses
         loss_rpn_cls = np.mean(losses_val[:, 0])
