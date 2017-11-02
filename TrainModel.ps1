@@ -31,8 +31,6 @@ cd ..
 # Upcoming Trainings 
 ################################################
 
-
-
 #######################################################
 # Below are configurations that already were 
 # started on a machine and should not run again, 
@@ -41,7 +39,29 @@ cd ..
 #######################################################
 exit
 
-# Started on Donki, 30.10.2017
+# Started on Donkey, 31.10.2017
+$base_name = "2017-10-31_1epoch"
+$model_name = "resnet50"
+$configuration_name = "small_anchor_box_scales"
+Start-Transcript -path "$($pathToTranscript)$($base_name)_$($model_name)_$($configuration_name).txt" -append
+python "$($pathToTranscript)TrainModel.py" --model_name $model_name --configuration_name $configuration_name --output_weight_path "$($base_name)_$($model_name)_$($configuration_name).hdf5" --config_filename "$($base_name)_$($model_name)_$($configuration_name).pickle" --num_epochs 1
+Stop-Transcript
+
+$base_name = "2017-10-31"
+$model_name = "vgg"
+$configuration_name = "small_anchor_box_scales"
+Start-Transcript -path "$($pathToTranscript)$($base_name)_$($model_name)_$($configuration_name).txt" -append
+python "$($pathToTranscript)TrainModel.py" --model_name $model_name --configuration_name $configuration_name --output_weight_path "$($base_name)_$($model_name)_$($configuration_name).hdf5" --config_filename "$($base_name)_$($model_name)_$($configuration_name).pickle" --num_epochs 200
+Stop-Transcript
+
+$base_name = "2017-10-31"
+$model_name = "resnet50"
+$configuration_name = "small_anchor_box_scales"
+Start-Transcript -path "$($pathToTranscript)$($base_name)_$($model_name)_$($configuration_name).txt" -append
+python "$($pathToTranscript)TrainModel.py" --model_name $model_name --configuration_name $configuration_name --output_weight_path "$($base_name)_$($model_name)_$($configuration_name).hdf5" --config_filename "$($base_name)_$($model_name)_$($configuration_name).pickle" --num_epochs 200
+Stop-Transcript
+
+# Started on Donkey, 30.10.2017
 $base_name = "2017-10-30_500-epochs"
 $number_of_epochs = 500
 $configuration_name = "small_anchor_box_scales"
@@ -49,7 +69,7 @@ Start-Transcript -path "$($pathToTranscript)$($base_name)_$($configuration_name)
 python "$($pathToTranscript)TrainModel.py" --configuration_name $configuration_name --output_weight_path "$($base_name)_$($configuration_name).hdf5" --config_filename "$($base_name)_$($configuration_name).pickle" --num_epochs $number_of_epochs
 Stop-Transcript
 
-# Started on Donki, 07.09.2017
+# Started on Donkey, 07.09.2017
 $base_name = "2017-09-07_5-epochs"
 $number_of_epochs = 5
 $configuration_name = "streched_anchor_box_ratios"
