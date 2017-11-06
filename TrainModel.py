@@ -40,8 +40,9 @@ def write_log(callback, names, logs, batch_no):
 
 def train_model(dataset_directory: str, model_name: str, delete_and_recreate_dataset_directory: bool,
                 configuration_name: str, output_weight_path: str, configuration_filename: str, number_of_epochs: int,
-                input_weight_path: str = None, early_stopping=20, learning_rate_reduction_patience=8,
-                learning_rate_reduction_factor=0.5):
+                early_stopping: int, learning_rate_reduction_patience: int,
+                learning_rate_reduction_factor: float, non_max_suppression_overlap_threshold: float,
+                non_max_suppression_max_boxes: int, input_weight_path: str = None):
     muscima_pp_raw_dataset_directory = os.path.join(dataset_directory, "muscima_pp_raw")
     muscima_image_directory = os.path.join(dataset_directory, "cvcmuscima_staff_removal")
     muscima_cropped_directory = os.path.join(dataset_directory, "muscima_pp_cropped_images")
@@ -97,13 +98,16 @@ def train_model(dataset_directory: str, model_name: str, delete_and_recreate_dat
     print('Training images per class:')
     pprint.pprint(classes_count)
     print('Num classes (including bg) = {}'.format(len(classes_count)))
+    print('Hyperparameters: {0} RoIs generated per run with {1} boxes remaining from non-max suppression and using '
+          'non-max suppression threshold of {2:.2f}'.format(C.num_rois, non_max_suppression_max_boxes,
+                                                            non_max_suppression_overlap_threshold))
 
     config_output_filename = configuration_filename
 
     with open(config_output_filename, 'wb') as config_f:
         pickle.dump(C, config_f)
         print('Config has been written to {}, and can be loaded when testing to ensure correct results'.format(
-                config_output_filename))
+            config_output_filename))
 
     random.seed(1)
     random.shuffle(all_images)
@@ -144,7 +148,7 @@ def train_model(dataset_directory: str, model_name: str, delete_and_recreate_dat
     model_all = Model([img_input, roi_input], rpn[:2] + classifier)
     start_of_training = datetime.date.today()
     tensorboard_callback = TensorBoard(
-            log_dir="./logs/{0}_{1}/".format(start_of_training, configuration_name))
+        log_dir="./logs/{0}_{1}/".format(start_of_training, configuration_name))
     tensorboard_callback.set_model(model_all)
 
     try:
@@ -176,8 +180,13 @@ def train_model(dataset_directory: str, model_name: str, delete_and_recreate_dat
     rpn_accuracy_for_epoch = []
 
     best_loss_training = np.inf
-    best_loss_validation = np.Inf
     best_loss_epoch = 0
+    best_total_loss_validation = np.Inf
+    best_loss_rpn_cls = np.inf
+    best_loss_rpn_regr = np.inf
+    best_loss_class_cls = np.inf
+    best_loss_class_regr = np.inf
+    best_class_acc = 0.0
     class_acc = 0.0
 
     model_classifier.summary()
@@ -203,11 +212,11 @@ def train_model(dataset_directory: str, model_name: str, delete_and_recreate_dat
                     mean_overlapping_bboxes = float(sum(rpn_accuracy_rpn_monitor)) / len(rpn_accuracy_rpn_monitor)
                     rpn_accuracy_rpn_monitor = []
                     print(
-                            '\nAverage number of overlapping bounding boxes from RPN = {} for {} previous iterations'.format(
-                                    mean_overlapping_bboxes, epoch_length))
+                        '\nAverage number of overlapping bounding boxes from RPN = {} for {} previous iterations'.format(
+                            mean_overlapping_bboxes, epoch_length))
                     if mean_overlapping_bboxes == 0:
                         print(
-                                'RPN is not producing bounding boxes that overlap the ground truth boxes. Check RPN settings or keep training.')
+                            'RPN is not producing bounding boxes that overlap the ground truth boxes. Check RPN settings or keep training.')
 
                 X, Y, img_data = next(data_gen_train)
 
@@ -215,9 +224,9 @@ def train_model(dataset_directory: str, model_name: str, delete_and_recreate_dat
 
                 P_rpn = model_rpn.predict_on_batch(X)
 
-                R = roi_helpers.rpn_to_roi(P_rpn[0], P_rpn[1], C, K.image_dim_ordering(), use_regr=True,
-                                           overlap_thresh=0.7,
-                                           max_boxes=300)
+                R = roi_helpers.rpn_to_roi(P_rpn[0], P_rpn[1], C, use_regr=True,
+                                           overlap_thresh=non_max_suppression_overlap_threshold,
+                                           max_boxes=non_max_suppression_max_boxes)
                 # note: calc_iou converts from (x1,y1,x2,y2) to (x,y,w,h) format
                 X2, Y1, Y2, IouS = roi_helpers.calc_iou(R, img_data, C, class_mapping)
 
@@ -272,10 +281,11 @@ def train_model(dataset_directory: str, model_name: str, delete_and_recreate_dat
                 losses[iter_num, 3] = loss_class[2]
                 losses[iter_num, 4] = loss_class[3]
 
-                progbar.update(iter_num+1,
-                               [('rpn_cls', np.mean(losses[:iter_num+1, 0])), ('rpn_regr', np.mean(losses[:iter_num+1, 1])),
-                                ('detector_cls', np.mean(losses[:iter_num+1, 2])),
-                                ('detector_regr', np.mean(losses[:iter_num+1, 3]))])
+                progbar.update(iter_num + 1,
+                               [('rpn_cls', np.mean(losses[:iter_num + 1, 0])),
+                                ('rpn_regr', np.mean(losses[:iter_num + 1, 1])),
+                                ('detector_cls', np.mean(losses[:iter_num + 1, 2])),
+                                ('detector_regr', np.mean(losses[:iter_num + 1, 3]))])
             except Exception as e:
                 print('Exception during training: {}'.format(e))
                 continue
@@ -293,7 +303,7 @@ def train_model(dataset_directory: str, model_name: str, delete_and_recreate_dat
         if C.verbose:
             print('[INFO TRAINING]')
             print('Mean number of bounding boxes from RPN overlapping ground truth boxes: {}'.format(
-                    mean_overlapping_bboxes))
+                mean_overlapping_bboxes))
             print('Classifier accuracy for bounding boxes from RPN: {}'.format(class_acc))
             print('Loss RPN classifier: {}'.format(loss_rpn_cls))
             print('Loss RPN regression: {}'.format(loss_rpn_regr))
@@ -302,18 +312,18 @@ def train_model(dataset_directory: str, model_name: str, delete_and_recreate_dat
             print('Elapsed time: {}'.format(time.time() - start_time))
             print("Best loss for training: {0:.3f}".format(best_loss_training))
 
-        curr_loss = loss_rpn_cls + loss_rpn_regr + loss_class_cls + loss_class_regr
-        start_time = time.time()
+        curr_total_loss = loss_rpn_cls + loss_rpn_regr + loss_class_cls + loss_class_regr
+        val_start_time = time.time()
         write_log(tensorboard_callback, train_names,
-                  [loss_rpn_cls, loss_rpn_regr, loss_class_cls, loss_class_regr, curr_loss, class_acc],
+                  [loss_rpn_cls, loss_rpn_regr, loss_class_cls, loss_class_regr, curr_total_loss, class_acc],
                   epoch_num)
 
-        if curr_loss < best_loss_training:
+        if curr_total_loss < best_loss_training:
             model_path = C.model_path[:-5] + "_training.hdf5"
             if C.verbose:
                 print('Total training loss decreased from {0:.3f} to {1:.3f}, saving weights to {2}'
-                      .format(best_loss_training, curr_loss, model_path))
-            best_loss_training = curr_loss
+                      .format(best_loss_training, curr_total_loss, model_path))
+            best_loss_training = curr_total_loss
             model_all.save_weights(model_path)
 
         #############
@@ -330,8 +340,9 @@ def train_model(dataset_directory: str, model_name: str, delete_and_recreate_dat
                 loss_rpn = model_rpn.test_on_batch(X, Y)
 
                 P_rpn = model_rpn.predict_on_batch(X)
-                R = roi_helpers.rpn_to_roi(P_rpn[0], P_rpn[1], C, K.image_dim_ordering(), use_regr=True,
-                                           overlap_thresh=0.7, max_boxes=300)
+                R = roi_helpers.rpn_to_roi(P_rpn[0], P_rpn[1], C, use_regr=True,
+                                           overlap_thresh=non_max_suppression_overlap_threshold,
+                                           max_boxes=non_max_suppression_max_boxes)
                 # note: calc_iou converts from (x1,y1,x2,y2) to (x,y,w,h) format
                 X2, Y1, Y2, IouS = roi_helpers.calc_iou(R, img_data, C, class_mapping)
 
@@ -384,10 +395,10 @@ def train_model(dataset_directory: str, model_name: str, delete_and_recreate_dat
                 losses_val[iter_num, 3] = loss_class[2]
                 losses_val[iter_num, 4] = loss_class[3]
 
-                progbar.update(iter_num + 1, [('rpn_cls', np.mean(losses_val[:iter_num+1, 0])),
-                                              ('rpn_regr', np.mean(losses_val[:iter_num+1, 1])),
-                                              ('detector_cls', np.mean(losses_val[:iter_num+1, 2])),
-                                              ('detector_regr', np.mean(losses_val[:iter_num+1, 3]))])
+                progbar.update(iter_num + 1, [('rpn_cls', np.mean(losses_val[:iter_num + 1, 0])),
+                                              ('rpn_regr', np.mean(losses_val[:iter_num + 1, 1])),
+                                              ('detector_cls', np.mean(losses_val[:iter_num + 1, 2])),
+                                              ('detector_regr', np.mean(losses_val[:iter_num + 1, 3]))])
             except Exception as e:
                 print('Exception during validation: {}'.format(e))
                 continue
@@ -401,30 +412,35 @@ def train_model(dataset_directory: str, model_name: str, delete_and_recreate_dat
 
         mean_overlapping_bboxes = float(sum(rpn_accuracy_for_epoch)) / len(rpn_accuracy_for_epoch)
         rpn_accuracy_for_epoch = []
-        curr_loss = loss_rpn_cls + loss_rpn_regr + loss_class_cls + loss_class_regr
+        curr_total_loss = loss_rpn_cls + loss_rpn_regr + loss_class_cls + loss_class_regr
 
         write_log(tensorboard_callback, val_names,
-                  [loss_rpn_cls, loss_rpn_regr, loss_class_cls, loss_class_regr, curr_loss, class_acc],
+                  [loss_rpn_cls, loss_rpn_regr, loss_class_cls, loss_class_regr, curr_total_loss, class_acc],
                   epoch_num)
 
         if C.verbose:
             print('[INFO VALIDATION]')
             print('Mean number of bounding boxes from RPN overlapping ground truth boxes: {}'.format(
-                    mean_overlapping_bboxes))
+                mean_overlapping_bboxes))
             print('Classifier accuracy for bounding boxes from RPN: {}'.format(class_acc))
             print('Loss RPN classifier: {}'.format(loss_rpn_cls))
             print('Loss RPN regression: {}'.format(loss_rpn_regr))
             print('Loss Detector classifier: {}'.format(loss_class_cls))
             print('Loss Detector regression: {}'.format(loss_class_regr))
             print("Current validation loss: {0:.3f}, Best validation loss: {1:.3f} at epoch: {2}"
-                  .format(curr_loss, best_loss_validation, best_loss_epoch))
-            print('Elapsed time: {}'.format(time.time() - start_time))
+                  .format(curr_total_loss, best_total_loss_validation, best_loss_epoch))
+            print('Elapsed time: {}'.format(time.time() - val_start_time))
 
-        if curr_loss < best_loss_validation:
+        if curr_total_loss < best_total_loss_validation:
             if C.verbose:
                 print('Total validation loss decreased from {0:.3f} to {1:.3f}, saving weights to {2}'
-                      .format(best_loss_validation, curr_loss, C.model_path))
-            best_loss_validation = curr_loss
+                      .format(best_total_loss_validation, curr_total_loss, C.model_path))
+            best_total_loss_validation = curr_total_loss
+            best_loss_rpn_cls = loss_rpn_cls
+            best_loss_rpn_regr = loss_rpn_regr
+            best_loss_class_cls = loss_class_cls
+            best_loss_class_regr = loss_class_regr
+            best_class_acc = class_acc
             best_loss_epoch = epoch_num
             model_all.save_weights(C.model_path)
             epochs_without_improvement = 0
@@ -440,7 +456,7 @@ def train_model(dataset_directory: str, model_name: str, delete_and_recreate_dat
             current_learning_rate = K.get_value(model_classifier.optimizer.lr)
             new_learning_rate = current_learning_rate * learning_rate_reduction_factor
             print("Not improved validation accuracy for {0} epochs. Reducing learning rate from {1} to {2}".format(
-                    learning_rate_reduction_patience, current_learning_rate, new_learning_rate))
+                learning_rate_reduction_patience, current_learning_rate, new_learning_rate))
             K.set_value(model_classifier.optimizer.lr, new_learning_rate)
             K.set_value(model_rpn.optimizer.lr, new_learning_rate)
             K.set_value(model_all.optimizer.lr, new_learning_rate)
@@ -453,7 +469,7 @@ def train_model(dataset_directory: str, model_name: str, delete_and_recreate_dat
                            "Val. accuracy: {3:0.5f}%".format("muscima_pp",
                                                              model_name,
                                                              configuration_name,
-                                                             class_acc * 100)
+                                                             best_class_acc * 100)
     TelegramNotifier.send_message_via_telegram(notification_message)
 
     today = "{0:02d}.{1:02d}.{2}".format(start_of_training.day, start_of_training.month, start_of_training.year)
@@ -466,8 +482,14 @@ def train_model(dataset_directory: str, model_name: str, delete_and_recreate_dat
                                                            learning_rate_reduction_factor=learning_rate_reduction_factor,
                                                            optimizer="Adadelta",
                                                            initial_learning_rate=1.0,
-                                                           validation_accuracy=class_acc,
-                                                           validation_total_loss=best_loss_validation,
+                                                           non_max_suppression_overlap_threshold=non_max_suppression_overlap_threshold,
+                                                           non_max_suppression_max_boxes=non_max_suppression_max_boxes,
+                                                           validation_accuracy=best_class_acc,
+                                                           validation_total_loss=best_total_loss_validation,
+                                                           best_loss_rpn_cls=best_loss_rpn_cls,
+                                                           best_loss_rpn_regr=best_loss_rpn_regr,
+                                                           best_loss_class_cls= best_loss_class_cls,
+                                                           best_loss_class_regr = best_loss_class_regr,
                                                            date=today,
                                                            datasets="muscima_pp",
                                                            execution_time_in_seconds=execution_time_in_seconds)
@@ -492,6 +514,14 @@ if __name__ == "__main__":
                         default='model_frcnn.hdf5')
     parser.add_argument("--input_weight_path", type=str, dest="input_weight_path",
                         help="Input path for weights. If not specified, will try to load default weights provided by keras.")
+    parser.add_argument("--non_max_suppression_max_boxes",
+                        type=int,
+                        dest="non_max_suppression_max_boxes",
+                        help="Number of boxes to keep from non-maximum suppressions", default=300)
+    parser.add_argument("--non_max_suppression_overlap_threshold",
+                        type=float,
+                        dest="non_max_suppression_overlap_threshold",
+                        help="Overlap threshold for non-maximum suppressions (between 0.0 - 1.0)", default=0.7)
 
     options, unparsed = parser.parse_known_args()
 
@@ -505,7 +535,10 @@ if __name__ == "__main__":
     early_stopping = 20
     learning_rate_reduction_patience = 8
     learning_rate_reduction_factor = 0.5
+    non_max_suppression_overlap_threshold = options.non_max_suppression_overlap_threshold
+    non_max_suppression_max_boxes = int(options.non_max_suppression_max_boxes)
 
     train_model(dataset_directory, model_name, options.delete_and_recreate_dataset_directory, configuration_name,
-                output_weight_path, configuration_filename, number_of_epochs, input_weight_path, early_stopping,
-                learning_rate_reduction_patience, learning_rate_reduction_factor)
+                output_weight_path, configuration_filename, number_of_epochs, early_stopping,
+                learning_rate_reduction_patience, learning_rate_reduction_factor, non_max_suppression_overlap_threshold,
+                non_max_suppression_max_boxes, input_weight_path)
