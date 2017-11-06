@@ -35,6 +35,18 @@ parser.add_argument("--model_name", type=str, default="resnet50",
                     help="The model used for training the network. Currently one of [vgg, resnet50]")
 parser.add_argument("-v", "--verbose", dest="verbose", help="Prints a verbose output while detecting objects.",
                     action="store_true", default=False)
+parser.add_argument("--non_max_suppression_max_boxes",
+                    type=int,
+                    dest="non_max_suppression_max_boxes",
+                    help="Number of boxes to keep from non-maximum suppressions", default=300)
+parser.add_argument("--non_max_suppression_overlap_threshold",
+                    type=float,
+                    dest="non_max_suppression_overlap_threshold",
+                    help="Overlap threshold for non-maximum suppressions (between 0.0 - 1.0)", default=0.7)
+parser.add_argument("--classification_accuracy_threshold",
+                    type=float,
+                    dest="classification_accuracy_threshold",
+                    help="Threshold to accept classifications as hits (between 0.0 - 1.0)", default=0.4)
 
 options, unparsed = parser.parse_known_args()
 
@@ -47,6 +59,9 @@ model_path = options.model_path
 model_name = options.model_name
 path_to_test_images = options.testdata_path
 num_rois = int(options.num_rois)
+non_max_suppression_overlap_threshold = options.non_max_suppression_overlap_threshold
+non_max_suppression_max_boxes = int(options.non_max_suppression_max_boxes)
+classification_accuracy_threshold = options.classification_accuracy_threshold
 
 if model_name not in ['resnet50', 'vgg']:
     raise ValueError(
@@ -159,10 +174,6 @@ all_imgs = []
 
 classes = {}
 
-non_max_suppression_overlap_threshold = 0.7
-non_max_suppressions_max_boxes = 2000
-classification_accuracy_threshold = 0.4
-
 if verbose:
     test_images = sorted(os.listdir(path_to_test_images))
 else:
@@ -191,7 +202,7 @@ for img_name in test_images:
 
         R = roi_helpers.rpn_to_roi(Y1, Y2, C,
                                    overlap_thresh=non_max_suppression_overlap_threshold,
-                                   max_boxes=non_max_suppressions_max_boxes)
+                                   max_boxes=non_max_suppression_max_boxes)
 
         # convert from (x1,y1,x2,y2) to (x,y,w,h)
         R[:, 2] -= R[:, 0]
@@ -259,7 +270,7 @@ for img_name in test_images:
 
             new_boxes, new_probs = roi_helpers.non_max_suppression_fast(bbox, np.array(probs[key]),
                                                                         overlap_thresh=non_max_suppression_overlap_threshold,
-                                                                        max_boxes=non_max_suppressions_max_boxes)
+                                                                        max_boxes=non_max_suppression_max_boxes)
             for jk in range(new_boxes.shape[0]):
                 detected_instances += 1
                 (x1, y1, x2, y2) = new_boxes[jk, :]
@@ -292,7 +303,7 @@ for img_name in test_images:
         # cv2.waitKey(0)
         file_name_without_extension = os.path.splitext(os.path.basename(img_name))[0]
         cv2.imwrite('./image_results/{0}_detect_{1}-rois_{2}-boxes_{3}-overlap_{4}-accuracy-threshold.png'
-                    .format(file_name_without_extension, num_rois, non_max_suppressions_max_boxes,
+                    .format(file_name_without_extension, num_rois, non_max_suppression_max_boxes,
                             non_max_suppression_overlap_threshold, classification_accuracy_threshold), img)
 
     except Exception as ex:
