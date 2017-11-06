@@ -21,6 +21,7 @@ parser = ArgumentParser()
 
 parser.add_argument("-p", "--testdata_path", dest="testdata_path", help="Path to test data.")
 parser.add_argument("-n", "--num_rois",
+                    type=int,
                     dest="num_rois",
                     help="Number of ROIs per iteration. Higher means more memory use.", default=32)
 parser.add_argument("--config_path",
@@ -44,6 +45,9 @@ config_output_filename = options.config_path
 verbose = options.verbose
 model_path = options.model_path
 model_name = options.model_name
+path_to_test_images = options.testdata_path
+num_rois = int(options.num_rois)
+
 if model_name not in ['resnet50', 'vgg']:
     raise ValueError(
         "Currently only resnet50 and vgg are supported model names, but {0} was provided".format(model_name))
@@ -60,8 +64,6 @@ elif model_name == 'vgg':
 C.use_horizontal_flips = False
 C.use_vertical_flips = False
 C.rot_90 = False
-
-path_to_test_images = options.testdata_path
 
 
 def format_img_size(img, C: FasterRcnnConfiguration):
@@ -120,7 +122,7 @@ class_mapping = {v: k for k, v in class_mapping.items()}
 print(class_mapping)
 np.random.seed(1)  # For creating reproducible random-colors
 class_to_color = {class_mapping[v]: np.random.randint(0, 255, 3) for v in class_mapping}
-C.num_rois = int(options.num_rois)
+C.num_rois = int(num_rois)
 
 if model_name == 'resnet50':
     num_features = 1024
@@ -131,7 +133,7 @@ input_shape_img = (None, None, 3)
 input_shape_features = (None, None, num_features)
 
 img_input = Input(shape=input_shape_img)
-roi_input = Input(shape=(C.num_rois, 4))
+roi_input = Input(shape=(num_rois, 4))
 feature_map_input = Input(shape=input_shape_features)
 
 # define the base network (resnet here, can be VGG, Inception, etc)
@@ -141,7 +143,7 @@ shared_layers = nn.nn_base(img_input, trainable=True)
 num_anchors = len(C.anchor_box_scales) * len(C.anchor_box_ratios)
 rpn_layers = nn.rpn(shared_layers, num_anchors)
 
-classifier = nn.classifier(feature_map_input, roi_input, C.num_rois, nb_classes=len(class_mapping), trainable=True)
+classifier = nn.classifier(feature_map_input, roi_input, num_rois, nb_classes=len(class_mapping), trainable=True)
 
 model_rpn = Model(img_input, rpn_layers)
 model_classifier = Model([feature_map_input, roi_input], classifier)
@@ -157,9 +159,9 @@ all_imgs = []
 
 classes = {}
 
-bbox_threshold = 0.4
-
-visualise = True
+non_max_suppression_overlap_threshold = 0.7
+non_max_suppressions_max_boxes = 2000
+classification_accuracy_threshold = 0.4
 
 if verbose:
     test_images = sorted(os.listdir(path_to_test_images))
@@ -187,7 +189,9 @@ for img_name in test_images:
         # get the feature maps and output from the RPN
         [Y1, Y2, F] = model_rpn.predict(X)
 
-        R = roi_helpers.rpn_to_roi(Y1, Y2, C, K.image_dim_ordering(), overlap_thresh=0.7)
+        R = roi_helpers.rpn_to_roi(Y1, Y2, C,
+                                   overlap_thresh=non_max_suppression_overlap_threshold,
+                                   max_boxes=non_max_suppressions_max_boxes)
 
         # convert from (x1,y1,x2,y2) to (x,y,w,h)
         R[:, 2] -= R[:, 0]
@@ -197,15 +201,15 @@ for img_name in test_images:
         bboxes = {}
         probs = {}
 
-        for jk in range(R.shape[0] // C.num_rois + 1):
-            ROIs = np.expand_dims(R[C.num_rois * jk:C.num_rois * (jk + 1), :], axis=0)
+        for jk in range(R.shape[0] // num_rois + 1):
+            ROIs = np.expand_dims(R[num_rois * jk:num_rois * (jk + 1), :], axis=0)
             if ROIs.shape[1] == 0:
                 break
 
-            if jk == R.shape[0] // C.num_rois:
+            if jk == R.shape[0] // num_rois:
                 # pad R
                 curr_shape = ROIs.shape
-                target_shape = (curr_shape[0], C.num_rois, curr_shape[2])
+                target_shape = (curr_shape[0], num_rois, curr_shape[2])
                 ROIs_padded = np.zeros(target_shape).astype(ROIs.dtype)
                 ROIs_padded[:, :curr_shape[1], :] = ROIs
                 ROIs_padded[0, curr_shape[1]:, :] = ROIs[0, 0, :]
@@ -219,7 +223,7 @@ for img_name in test_images:
                 max_classification = np.max(classifications)
                 most_likely_class = np.argmax(classifications)
                 background_class = (P_cls.shape[2] - 1)
-                if max_classification < bbox_threshold:
+                if max_classification < classification_accuracy_threshold:
                     continue
 
                 if most_likely_class == background_class:
@@ -253,7 +257,9 @@ for img_name in test_images:
         for key in bboxes:
             bbox = np.array(bboxes[key])
 
-            new_boxes, new_probs = roi_helpers.non_max_suppression_fast(bbox, np.array(probs[key]), overlap_thresh=0.5)
+            new_boxes, new_probs = roi_helpers.non_max_suppression_fast(bbox, np.array(probs[key]),
+                                                                        overlap_thresh=non_max_suppression_overlap_threshold,
+                                                                        max_boxes=non_max_suppressions_max_boxes)
             for jk in range(new_boxes.shape[0]):
                 detected_instances += 1
                 (x1, y1, x2, y2) = new_boxes[jk, :]
@@ -285,7 +291,9 @@ for img_name in test_images:
         # cv2.imshow('img', img)
         # cv2.waitKey(0)
         file_name_without_extension = os.path.splitext(os.path.basename(img_name))[0]
-        cv2.imwrite('./image_results/{0}_detect.png'.format(file_name_without_extension), img)
+        cv2.imwrite('./image_results/{0}_detect_{1}-rois_{2}-boxes_{3}-overlap_{4}-accuracy-threshold.png'
+                    .format(file_name_without_extension, num_rois, non_max_suppressions_max_boxes,
+                            non_max_suppression_overlap_threshold, classification_accuracy_threshold), img)
 
     except Exception as ex:
         print("Error while detecting objects in {0}: {1}".format(img_name, ex))
