@@ -13,7 +13,7 @@
     <module name="MusicObjectDetector" />
     <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
     <option name="SCRIPT_NAME" value="$PROJECT_DIR$/TestModel.py" />
-    <option name="PARAMETERS" value="--testdata_path testdata --num_rois 50 --config_path results/2017-10-31_resnet50_small_anchor_box_scales.pickle --model_path results/2017-10-31_resnet50_small_anchor_box_scales.hdf5 --model_name resnet50 --verbose" />
+    <option name="PARAMETERS" value="--testdata_path testdata --num_rois 50 --config_path results/2017-10-31_resnet50_small_anchor_box_scales.pickle --model_path results/2017-10-31_resnet50_small_anchor_box_scales.hdf5 --model_name resnet50" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="false" />
     <method />
