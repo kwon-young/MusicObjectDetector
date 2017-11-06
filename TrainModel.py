@@ -105,6 +105,7 @@ def train_model(dataset_directory: str, model_name: str, delete_and_recreate_dat
         print('Config has been written to {}, and can be loaded when testing to ensure correct results'.format(
                 config_output_filename))
 
+    random.seed(1)
     random.shuffle(all_images)
 
     # num_imgs = len(all_images)
