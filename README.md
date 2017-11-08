@@ -6,6 +6,7 @@ This repository is the home of a Faster R-CNN implementation for Music Symbols t
 
 Note my previous projects that [classified entire sheets](https://github.com/apacha/MusicScoreClassifier) or [learnt to classify different music symbols](https://github.com/apacha/MusicSymbolClassifier).
 
+An extensive overview of the results of different parameters is documented in this [Google Spreadsheet](https://docs.google.com/spreadsheets/d/1MT4CH9yJD_vM9nT8JgnfmzwAVIuRoQYEyv-5FHMjYVo/edit?usp=sharing).
 
 # Running the application
 This repository contains several scripts that can be used independently of each other. 
