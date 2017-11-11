@@ -6,7 +6,6 @@ import pprint
 import random
 import shutil
 import time
-from optparse import OptionParser
 
 import numpy as np
 import tensorflow
@@ -21,11 +20,19 @@ from omrdatasettools.downloaders.CvcMuscimaDatasetDownloader import CvcMuscimaDa
 from omrdatasettools.downloaders.MuscimaPlusPlusDatasetDownloader import MuscimaPlusPlusDatasetDownloader
 
 import keras_frcnn.roi_helpers as roi_helpers
-from keras_frcnn import data_generators_fast, faster_rcnn_losses, data_generators
+from keras_frcnn import faster_rcnn_losses, data_generators
 from keras_frcnn.configurations.ConfigurationFactory import ConfigurationFactory
 from keras_frcnn.muscima_image_cutter import delete_unused_images, cut_images
 from keras_frcnn.muscima_pp_cropped_image_parser import get_data
 from keras_frcnn.reporting import TelegramNotifier, GoogleSpreadsheetReporter
+
+try:
+    from keras_frcnn import data_generators_fast
+
+    use_fast_data_generators = True
+except:
+    print("Could not import fast data_generators. Falling back to slow data_generator. See README for more information")
+    use_fast_data_generators = False
 
 
 def write_log(callback, names, logs, batch_no):
@@ -49,6 +56,22 @@ def train_model(dataset_directory: str, model_name: str, delete_and_recreate_dat
 
     if not dataset_directory:  # if filename is not given
         parser.error('Error: path to training data must be specified. Pass --path to command line')
+
+    if model_name == 'vgg':
+        from keras_frcnn import vgg as nn
+    elif model_name == 'resnet50':
+        from keras_frcnn.networks import resnet as nn
+    elif model_name == 'simple_resnet':
+        from keras_frcnn.networks import simple_resnet as nn
+    else:
+        print('Not a valid model')
+        raise ValueError
+
+    try:
+        all_images, classes_count, class_mapping = get_data(muscima_cropped_directory)
+    except:
+        print("Could not load dataset. Automatically downloading and recreating dataset.")
+        delete_and_recreate_dataset_directory = True
 
     if delete_and_recreate_dataset_directory:
         print("Deleting dataset directory {0}".format(dataset_directory))
@@ -76,16 +99,6 @@ def train_model(dataset_directory: str, model_name: str, delete_and_recreate_dat
     C = ConfigurationFactory.get_configuration_by_name(configuration_name)
     C.model_path = output_weight_path
     start_time = time.time()
-
-    if model_name == 'vgg':
-        from keras_frcnn import vgg as nn
-    elif model_name == 'resnet50':
-        from keras_frcnn import resnet as nn
-    else:
-        print('Not a valid model')
-        raise ValueError
-
-    all_images, classes_count, class_mapping = get_data(muscima_cropped_directory)
 
     if 'bg' not in classes_count:
         classes_count['bg'] = 0
@@ -120,12 +133,15 @@ def train_model(dataset_directory: str, model_name: str, delete_and_recreate_dat
     print('Num train samples {}'.format(len(train_imgs)))
     print('Num val samples {}'.format(len(val_imgs)))
 
-    data_gen_train = data_generators.get_anchor_gt(train_imgs, classes_count, C, nn.get_img_output_length, mode='train')
-    data_gen_val = data_generators.get_anchor_gt(val_imgs, classes_count, C, nn.get_img_output_length, mode='val')
-
-    data_gen_train = data_generators_fast.get_anchor_gt(train_imgs, classes_count, C, nn.get_img_output_length,
-                                                        mode='train')
-    data_gen_val = data_generators_fast.get_anchor_gt(val_imgs, classes_count, C, nn.get_img_output_length, mode='val')
+    if not use_fast_data_generators:
+        data_gen_train = data_generators.get_anchor_gt(train_imgs, classes_count, C, nn.get_img_output_length,
+                                                       mode='train')
+        data_gen_val = data_generators.get_anchor_gt(val_imgs, classes_count, C, nn.get_img_output_length, mode='val')
+    else:
+        data_gen_train = data_generators_fast.get_anchor_gt(train_imgs, classes_count, C, nn.get_img_output_length,
+                                                            mode='train')
+        data_gen_val = data_generators_fast.get_anchor_gt(val_imgs, classes_count, C, nn.get_img_output_length,
+                                                          mode='val')
 
     input_shape_img = (None, None, 3)
 
@@ -488,8 +504,8 @@ def train_model(dataset_directory: str, model_name: str, delete_and_recreate_dat
                                                            validation_total_loss=best_total_loss_validation,
                                                            best_loss_rpn_cls=best_loss_rpn_cls,
                                                            best_loss_rpn_regr=best_loss_rpn_regr,
-                                                           best_loss_class_cls= best_loss_class_cls,
-                                                           best_loss_class_regr = best_loss_class_regr,
+                                                           best_loss_class_cls=best_loss_class_cls,
+                                                           best_loss_class_regr=best_loss_class_regr,
                                                            date=today,
                                                            datasets="muscima_pp",
                                                            execution_time_in_seconds=execution_time_in_seconds)
@@ -500,7 +516,7 @@ if __name__ == "__main__":
 
     parser.add_argument("-p", "--path", type=str, dest="train_path", help="Path to training data.", default="data")
     parser.add_argument("--model_name", type=str, default="resnet50",
-                        help="The model used for training the network. Currently one of [vgg, resnet50]")
+                        help="The model used for training the network. Currently one of [vgg, resnet50, simple_resnet]")
     parser.add_argument("--recreate_dataset_directory", dest="delete_and_recreate_dataset_directory",
                         help="Deletes and recreates the dataset directory",
                         action="store_true", default=False)
