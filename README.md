@@ -15,8 +15,9 @@ Before running them, make sure that you have the necessary requirements installe
 ## Requirements
 
 - Python 3.6
-- Keras 2.0.6
-- Tensorflow 1.2.1 (or optionally tensorflow-gpu 1.2.1)
+- Keras 2.0.8
+- Tensorflow 1.3.0 (or optionally tensorflow-gpu 1.3.0)
+- [Microsoft Visual C++ Build Tools 2015](http://landinghub.visualstudio.com/visual-cpp-build-tools) (for faster data_generator)
 
 Optional: If you want to print the graph of the model being trained, install GraphViz on Windows via http://www.graphviz.org/Download_windows.php and add /bin to the PATH or run `sudo apt-get install graphviz` on Ubuntu (see https://github.com/fchollet/keras/issues/3210)
 
