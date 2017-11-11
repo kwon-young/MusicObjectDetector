@@ -69,8 +69,10 @@ def train_model(dataset_directory: str, model_name: str, delete_and_recreate_dat
 
     try:
         all_images, classes_count, class_mapping = get_data(muscima_cropped_directory)
+        data_loaded = True
     except:
         print("Could not load dataset. Automatically downloading and recreating dataset.")
+        data_loaded = False
         delete_and_recreate_dataset_directory = True
 
     if delete_and_recreate_dataset_directory:
@@ -99,6 +101,9 @@ def train_model(dataset_directory: str, model_name: str, delete_and_recreate_dat
     C = ConfigurationFactory.get_configuration_by_name(configuration_name)
     C.model_path = output_weight_path
     start_time = time.time()
+
+    if not data_loaded:
+        all_images, classes_count, class_mapping = get_data(muscima_cropped_directory)
 
     if 'bg' not in classes_count:
         classes_count['bg'] = 0
