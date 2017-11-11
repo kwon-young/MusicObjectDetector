@@ -1,18 +1,18 @@
-import os
+import pickle
+import sys
+import time
+from optparse import OptionParser
+
 import cv2
 import numpy as np
-import sys
-import pickle
-from optparse import OptionParser
-import time
-from keras_frcnn import config
-import keras_frcnn.resnet as nn
 from keras import backend as K
 from keras.layers import Input
 from keras.models import Model
-from keras_frcnn import roi_helpers
-from keras_frcnn import data_generators
 from sklearn.metrics import average_precision_score
+
+import keras_frcnn.networks.resnet as nn
+from keras_frcnn import data_generators
+from keras_frcnn import roi_helpers
 
 
 def get_map(pred, gt, f):
