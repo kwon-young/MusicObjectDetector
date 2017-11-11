@@ -1,14 +1,13 @@
 from __future__ import division
+
 import os
+import pickle
+import time
 import traceback
 from argparse import ArgumentParser
 
 import cv2
 import numpy as np
-import sys
-import pickle
-from optparse import OptionParser
-import time
 from keras import backend as K
 from keras.layers import Input
 from keras.models import Model
@@ -71,7 +70,7 @@ with open(config_output_filename, 'rb') as f_in:
     C: FasterRcnnConfiguration = pickle.load(f_in)
 
 if model_name == 'resnet50':
-    import keras_frcnn.resnet as nn
+    import keras_frcnn.networks.resnet as nn
 elif model_name == 'vgg':
     import keras_frcnn.vgg as nn
 
