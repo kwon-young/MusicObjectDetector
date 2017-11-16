@@ -3,19 +3,14 @@
 # Reference
 - [Very Deep Convolutional Networks for Large-Scale Image Recognition](https://arxiv.org/abs/1409.1556)
 """
-from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
+from __future__ import print_function
 
-import warnings
-
-from keras.models import Model
-from keras.layers import Flatten, Dense, Input, Conv2D, MaxPooling2D
-from keras.layers import GlobalAveragePooling2D, GlobalMaxPooling2D, TimeDistributed
-from keras.engine.topology import get_source_inputs
-from keras.utils import layer_utils
-from keras.utils.data_utils import get_file
 from keras import backend as K
+from keras.layers import Flatten, Dense, Input, Conv2D, MaxPooling2D
+from keras.layers import TimeDistributed
+
 from keras_frcnn.RoiPoolingConv import RoiPoolingConv
 
 
