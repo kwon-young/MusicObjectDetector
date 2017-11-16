@@ -10,7 +10,7 @@ class AutomaticConfig(FasterRcnnConfiguration):
 
     def __init__(self):
         # TODO: Implement meaningful statistics calculation
-        raise NotImplementedError()
+        pass
 
     def name(self) -> str:
         return "automatic"
