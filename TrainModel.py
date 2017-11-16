@@ -63,6 +63,8 @@ def train_model(dataset_directory: str, model_name: str, delete_and_recreate_dat
         from keras_frcnn.networks import resnet as nn
     elif model_name == 'simple_resnet':
         from keras_frcnn.networks import simple_resnet as nn
+    elif model_name == 'simple_vgg':
+        from keras_frcnn.networks import simple_vgg as nn
     else:
         print('Not a valid model')
         raise ValueError

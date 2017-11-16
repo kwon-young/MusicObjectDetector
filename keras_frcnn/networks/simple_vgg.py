@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""VGG16 model for Keras.
+"""Simplified VGG16 model for Keras.
 # Reference
 - [Very Deep Convolutional Networks for Large-Scale Image Recognition](https://arxiv.org/abs/1409.1556)
 """
@@ -20,12 +20,13 @@ from keras_frcnn.RoiPoolingConv import RoiPoolingConv
 
 
 def get_weight_path():
-    return 'vgg16_weights_tf_dim_ordering_tf_kernels.h5'
+    return None
 
 
 def get_img_output_length(width, height):
     def get_output_length(input_length):
-        return input_length // 16
+        # We only have two pooling layers, so image size is reduced by factor 4
+        return input_length // 4
 
     return get_output_length(width), get_output_length(height)
 
@@ -55,20 +56,10 @@ def nn_base(input_tensor=None, trainable=False):
     # Block 3
     x = Conv2D(256, (3, 3), activation='relu', padding='same', name='block3_conv1')(x)
     x = Conv2D(256, (3, 3), activation='relu', padding='same', name='block3_conv2')(x)
-    x = Conv2D(256, (3, 3), activation='relu', padding='same', name='block3_conv3')(x)
-    x = MaxPooling2D((2, 2), strides=(2, 2), name='block3_pool')(x)
 
     # Block 4
-    x = Conv2D(512, (3, 3), activation='relu', padding='same', name='block4_conv1')(x)
-    x = Conv2D(512, (3, 3), activation='relu', padding='same', name='block4_conv2')(x)
-    x = Conv2D(512, (3, 3), activation='relu', padding='same', name='block4_conv3')(x)
-    x = MaxPooling2D((2, 2), strides=(2, 2), name='block4_pool')(x)
-
-    # Block 5
-    x = Conv2D(512, (3, 3), activation='relu', padding='same', name='block5_conv1')(x)
-    x = Conv2D(512, (3, 3), activation='relu', padding='same', name='block5_conv2')(x)
-    x = Conv2D(512, (3, 3), activation='relu', padding='same', name='block5_conv3')(x)
-    # x = MaxPooling2D((2, 2), strides=(2, 2), name='block5_pool')(x)
+    x = Conv2D(256, (3, 3), activation='relu', padding='same', name='block4_conv1')(x)
+    x = Conv2D(256, (3, 3), activation='relu', padding='same', name='block4_conv2')(x)
 
     return x
 
@@ -84,10 +75,7 @@ def rpn(base_layers, num_anchors):
 
 
 def classifier(base_layers, input_rois, num_rois, nb_classes=21, trainable=False):
-    # compile times on theano tend to be very high, so we use smaller ROI pooling regions to workaround
-
     pooling_regions = 7
-    input_shape = (num_rois, 7, 7, 512)
 
     out_roi_pool = RoiPoolingConv(pooling_regions, num_rois)([base_layers, input_rois])
 

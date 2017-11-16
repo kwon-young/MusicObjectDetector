@@ -84,10 +84,7 @@ def rpn(base_layers, num_anchors):
 
 
 def classifier(base_layers, input_rois, num_rois, nb_classes=21, trainable=False):
-    # compile times on theano tend to be very high, so we use smaller ROI pooling regions to workaround
-
     pooling_regions = 7
-    input_shape = (num_rois, 7, 7, 512)
 
     out_roi_pool = RoiPoolingConv(pooling_regions, num_rois)([base_layers, input_rois])
 
