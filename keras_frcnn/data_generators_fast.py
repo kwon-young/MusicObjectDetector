@@ -1,6 +1,6 @@
 import random
 import threading
-from typing import List
+from typing import List, Tuple
 
 import cv2
 import numpy
@@ -42,7 +42,7 @@ def iou(a, b):
     return float(area_i) / float(area_u + 1e-6)
 
 
-def get_new_img_size(width, height, img_min_side=600):
+def get_new_img_size(width, height, img_min_side=600) -> Tuple[int, int]:
     if width <= height:
         f = float(img_min_side) / width
         resized_height = int(f * height)
@@ -55,7 +55,7 @@ def get_new_img_size(width, height, img_min_side=600):
     return resized_width, resized_height
 
 
-def calc_rpn_slow(C, img_data, width, height, resized_width, resized_height, img_length_calc_function):
+def calc_rpn_slow(C, img_data, width: int, height: int, resized_width: int, resized_height: int, img_length_calc_function):
     downscale = float(C.rpn_stride)
     anchor_sizes = C.anchor_box_scales
     anchor_ratios = C.anchor_box_ratios

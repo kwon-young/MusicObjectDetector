@@ -54,7 +54,7 @@ def get_new_img_size(width, height, img_min_side=600):
     return resized_width, resized_height
 
 
-def calc_rpn(C, img_data, width, height, resized_width, resized_height, img_length_calc_function):
+def calc_rpn(C, img_data, width: int, height: int, resized_width : int, resized_height: int, img_length_calc_function):
     downscale = float(C.rpn_stride)
     anchor_sizes = C.anchor_box_scales
     anchor_ratios = C.anchor_box_ratios
