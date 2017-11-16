@@ -210,12 +210,10 @@ def train_model(dataset_directory: str, model_name: str, delete_and_recreate_dat
     best_loss_class_cls = np.inf
     best_loss_class_regr = np.inf
     best_class_acc = 0.0
-    class_acc = 0.0
 
     model_classifier.summary()
     print(C.summary())
 
-    # class_mapping_inv = {v: k for k, v in class_mapping.items()}
     print('Starting training')
 
     train_names = ['train_loss_rpn_cls', 'train_loss_rpn_reg', 'train_loss_class_cls', 'train_loss_class_reg',
