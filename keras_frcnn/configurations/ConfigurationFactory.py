@@ -14,7 +14,7 @@ from keras_frcnn.configurations.StretchedAnchorBoxRatiosConfig import StretchedA
 from keras_frcnn.configurations.ManyAnchorBoxScalesConfig import ManyAnchorBoxScalesConfig
 from keras_frcnn.configurations.OriginalPascalVocConfig import OriginalPascalVocConfig
 from keras_frcnn.configurations.SmallAnchorBoxScalesConfig import SmallAnchorBoxScalesConfig
-from keras_frcnn.configurations.VggSmallImagesConfig import VggSmallImagesConfig
+from keras_frcnn.configurations.AutomaticConfig import AutomaticConfig
 
 
 class ConfigurationFactory:
@@ -40,7 +40,7 @@ class ConfigurationFactory:
                           ManyAnchorBoxScalesManyRoisLargeStrideConfig(),
                           SmallImagesConfig(),
                           ManyAnchorBoxRatiosConfig(),
-                          VggSmallImagesConfig(),
+                          AutomaticConfig(),
                           SmallAnchorBoxScalesManyRoisConfig()]
         return configurations
 
