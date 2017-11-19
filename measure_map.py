@@ -10,9 +10,9 @@ from keras.layers import Input
 from keras.models import Model
 from sklearn.metrics import average_precision_score
 
-import keras_frcnn.networks.resnet as nn
 from keras_frcnn import data_generators
 from keras_frcnn import roi_helpers
+from keras_frcnn.networks.NetworkFactory import NetworkFactory
 
 
 def get_map(pred, gt, f):
@@ -157,13 +157,14 @@ roi_input = Input(shape=(C.num_rois, 4))
 feature_map_input = Input(shape=input_shape_features)
 
 # define the base network (resnet here, can be VGG, Inception, etc)
-shared_layers = nn.nn_base(img_input, trainable=True)
+network = NetworkFactory.get_network_by_name("ResNet50")
+shared_layers = network.nn_base(img_input, trainable=True)
 
 # define the RPN, built on the base layers
 num_anchors = len(C.anchor_box_scales) * len(C.anchor_box_ratios)
-rpn_layers = nn.rpn(shared_layers, num_anchors)
+rpn_layers = network.rpn(shared_layers, num_anchors)
 
-classifier = nn.classifier(feature_map_input, roi_input, C.num_rois, nb_classes=len(class_mapping), trainable=True)
+classifier = network.classifier(feature_map_input, roi_input, C.num_rois, nb_classes=len(class_mapping), trainable=True)
 
 model_rpn = Model(img_input, rpn_layers)
 model_classifier_only = Model([feature_map_input, roi_input], classifier)
