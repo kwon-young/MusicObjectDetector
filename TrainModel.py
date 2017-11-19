@@ -24,6 +24,7 @@ from keras_frcnn import faster_rcnn_losses, data_generators
 from keras_frcnn.configurations.ConfigurationFactory import ConfigurationFactory
 from keras_frcnn.muscima_image_cutter import delete_unused_images, cut_images
 from keras_frcnn.muscima_pp_cropped_image_parser import get_data
+from keras_frcnn.networks.NetworkFactory import NetworkFactory
 from keras_frcnn.reporting import TelegramNotifier, GoogleSpreadsheetReporter
 
 try:
@@ -57,17 +58,7 @@ def train_model(dataset_directory: str, model_name: str, delete_and_recreate_dat
     if not dataset_directory:  # if filename is not given
         parser.error('Error: path to training data must be specified. Pass --path to command line')
 
-    if model_name == 'vgg':
-        from keras_frcnn import vgg as nn
-    elif model_name == 'resnet50':
-        from keras_frcnn.networks import resnet as nn
-    elif model_name == 'simple_resnet':
-        from keras_frcnn.networks import simple_resnet as nn
-    elif model_name == 'simple_vgg':
-        from keras_frcnn.networks import simple_vgg as nn
-    else:
-        print('Not a valid model')
-        raise ValueError
+    network = NetworkFactory.get_network_by_name(model_name)
 
     try:
         all_images, classes_count, class_mapping = get_data(muscima_cropped_directory)
@@ -127,7 +118,7 @@ def train_model(dataset_directory: str, model_name: str, delete_and_recreate_dat
     with open(config_output_filename, 'wb') as config_f:
         pickle.dump(C, config_f)
         print('Config has been written to {}, and can be loaded when testing to ensure correct results'.format(
-            config_output_filename))
+                config_output_filename))
 
     random.seed(1)
     random.shuffle(all_images)
@@ -142,14 +133,14 @@ def train_model(dataset_directory: str, model_name: str, delete_and_recreate_dat
 
     if not use_fast_data_generators:
         print("Using standard data_generator")
-        data_gen_train = data_generators.get_anchor_gt(train_imgs, classes_count, C, nn.get_img_output_length,
+        data_gen_train = data_generators.get_anchor_gt(train_imgs, classes_count, C, network.get_img_output_length,
                                                        mode='train')
-        data_gen_val = data_generators.get_anchor_gt(val_imgs, classes_count, C, nn.get_img_output_length, mode='val')
+        data_gen_val = data_generators.get_anchor_gt(val_imgs, classes_count, C, network.get_img_output_length, mode='val')
     else:
         print("Using fast data_generator")
-        data_gen_train = data_generators_fast.get_anchor_gt(train_imgs, classes_count, C, nn.get_img_output_length,
+        data_gen_train = data_generators_fast.get_anchor_gt(train_imgs, classes_count, C, network.get_img_output_length,
                                                             mode='train')
-        data_gen_val = data_generators_fast.get_anchor_gt(val_imgs, classes_count, C, nn.get_img_output_length,
+        data_gen_val = data_generators_fast.get_anchor_gt(val_imgs, classes_count, C, network.get_img_output_length,
                                                           mode='val')
 
     input_shape_img = (None, None, 3)
@@ -158,13 +149,13 @@ def train_model(dataset_directory: str, model_name: str, delete_and_recreate_dat
     roi_input = Input(shape=(None, 4))
 
     # define the base network (resnet here, can be VGG, Inception, etc)
-    shared_layers = nn.nn_base(img_input, trainable=True)
+    shared_layers = network.nn_base(img_input, trainable=True)
 
     # define the RPN, built on the base layers
     num_anchors = len(C.anchor_box_scales) * len(C.anchor_box_ratios)
-    rpn = nn.rpn(shared_layers, num_anchors)
+    rpn = network.rpn(shared_layers, num_anchors)
 
-    classifier = nn.classifier(shared_layers, roi_input, C.num_rois, nb_classes=len(classes_count), trainable=True)
+    classifier = network.classifier(shared_layers, roi_input, C.num_rois, nb_classes=len(classes_count), trainable=True)
 
     model_rpn = Model(img_input, rpn[:2])
     model_classifier = Model([img_input, roi_input], classifier)
@@ -173,7 +164,7 @@ def train_model(dataset_directory: str, model_name: str, delete_and_recreate_dat
     model_all = Model([img_input, roi_input], rpn[:2] + classifier)
     start_of_training = datetime.date.today()
     tensorboard_callback = TensorBoard(
-        log_dir="./logs/{0}_{1}/".format(start_of_training, configuration_name))
+            log_dir="./logs/{0}_{1}/".format(start_of_training, configuration_name))
     tensorboard_callback.set_model(model_all)
 
     try:
@@ -235,11 +226,11 @@ def train_model(dataset_directory: str, model_name: str, delete_and_recreate_dat
                     mean_overlapping_bboxes = float(sum(rpn_accuracy_rpn_monitor)) / len(rpn_accuracy_rpn_monitor)
                     rpn_accuracy_rpn_monitor = []
                     print(
-                        '\nAverage number of overlapping bounding boxes from RPN = {} for {} previous iterations'.format(
-                            mean_overlapping_bboxes, epoch_length))
+                            '\nAverage number of overlapping bounding boxes from RPN = {} for {} previous iterations'.format(
+                                    mean_overlapping_bboxes, epoch_length))
                     if mean_overlapping_bboxes == 0:
                         print(
-                            'RPN is not producing bounding boxes that overlap the ground truth boxes. Check RPN settings or keep training.')
+                                'RPN is not producing bounding boxes that overlap the ground truth boxes. Check RPN settings or keep training.')
 
                 X, Y, img_data = next(data_gen_train)
 
@@ -326,7 +317,7 @@ def train_model(dataset_directory: str, model_name: str, delete_and_recreate_dat
         if C.verbose:
             print('[INFO TRAINING]')
             print('Mean number of bounding boxes from RPN overlapping ground truth boxes: {}'.format(
-                mean_overlapping_bboxes))
+                    mean_overlapping_bboxes))
             print('Classifier accuracy for bounding boxes from RPN: {}'.format(class_acc))
             print('Loss RPN classifier: {}'.format(loss_rpn_cls))
             print('Loss RPN regression: {}'.format(loss_rpn_regr))
@@ -444,7 +435,7 @@ def train_model(dataset_directory: str, model_name: str, delete_and_recreate_dat
         if C.verbose:
             print('[INFO VALIDATION]')
             print('Mean number of bounding boxes from RPN overlapping ground truth boxes: {}'.format(
-                mean_overlapping_bboxes))
+                    mean_overlapping_bboxes))
             print('Classifier accuracy for bounding boxes from RPN: {}'.format(class_acc))
             print('Loss RPN classifier: {}'.format(loss_rpn_cls))
             print('Loss RPN regression: {}'.format(loss_rpn_regr))
@@ -479,7 +470,7 @@ def train_model(dataset_directory: str, model_name: str, delete_and_recreate_dat
             current_learning_rate = K.get_value(model_classifier.optimizer.lr)
             new_learning_rate = current_learning_rate * learning_rate_reduction_factor
             print("Not improved validation accuracy for {0} epochs. Reducing learning rate from {1} to {2}".format(
-                learning_rate_reduction_patience, current_learning_rate, new_learning_rate))
+                    learning_rate_reduction_patience, current_learning_rate, new_learning_rate))
             K.set_value(model_classifier.optimizer.lr, new_learning_rate)
             K.set_value(model_rpn.optimizer.lr, new_learning_rate)
             K.set_value(model_all.optimizer.lr, new_learning_rate)
@@ -522,8 +513,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument("-p", "--path", type=str, dest="train_path", help="Path to training data.", default="data")
-    parser.add_argument("--model_name", type=str, default="resnet50",
-                        help="The model used for training the network. Currently one of [vgg, resnet50, simple_resnet]")
+    parser.add_argument("--model_name", type=str, default="ResNet50",
+                        help="The model used for training the network. Currently one of [ResNet50, Vgg16, SimpleResNet, SimpleVgg]")
     parser.add_argument("--recreate_dataset_directory", dest="delete_and_recreate_dataset_directory",
                         help="Deletes and recreates the dataset directory",
                         action="store_true", default=False)

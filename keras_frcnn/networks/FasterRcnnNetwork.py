@@ -9,6 +9,11 @@ class FasterRcnnNetwork(object):
     """Abstract base class for different network architectures used in Faster R-CNN"""
 
     @abstractmethod
+    def name(self) -> str:
+        """ Returns the name of this configuration """
+        pass
+
+    @abstractmethod
     def get_weight_path(self) -> str:
         """Returns the path to the file that contains the pre-trained weights of this network architecture
         TODO: Refactor to better name """

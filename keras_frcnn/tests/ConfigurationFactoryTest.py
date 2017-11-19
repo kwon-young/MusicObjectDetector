@@ -3,7 +3,7 @@ import unittest
 from keras_frcnn.configurations.ConfigurationFactory import ConfigurationFactory
 
 
-class TrainingDatasetProviderTest(unittest.TestCase):
+class ConfigurationFactoryTest(unittest.TestCase):
     def test_get_all_configurations(self):
         # Arrange
         configuration_factory = ConfigurationFactory()

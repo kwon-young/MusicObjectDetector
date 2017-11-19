@@ -70,7 +70,7 @@ with open(config_output_filename, 'rb') as f_in:
     C: FasterRcnnConfiguration = pickle.load(f_in)
 
 if model_name == 'resnet50':
-    import keras_frcnn.networks.resnet as nn
+    import keras_frcnn.networks.ResNet50 as nn
 elif model_name == 'vgg':
     import keras_frcnn.vgg as nn
 
