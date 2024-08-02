@@ -5,7 +5,7 @@ graphviz == 0.8 # for graphviz, installation via the system might be required, e
 pytest >= 3.0.7
 
 # Use pip install ... to install these
-keras == 2.0.8
+keras == 2.13.1
 tensorflow >= 2.4.0
 # tensorflow-gpu >= 2.4.0 # Alternatively if available to run vastly faster trainings. See https://github.com/philferriere/dlwin
 codecov == 2.0.9
